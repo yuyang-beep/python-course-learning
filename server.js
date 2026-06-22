@@ -15,13 +15,29 @@ const io = socketIO(server, {
     cors: {
         origin: "*",
         methods: ["GET", "POST"]
-    }
+    },
+    transports: ['websocket', 'polling']
 });
 
 // 中间件
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+
+// ==================== 根路由 ====================
+app.get('/', (req, res) => {
+    res.json({
+        message: '皇帝的新装 - 游戏服务器',
+        version: '1.0.0',
+        status: 'running',
+        endpoints: {
+            health: '/health',
+            room: '/api/room/:code',
+            player: '/api/player/:roomCode/:playerId'
+        },
+        socketio: 'WebSocket connection available'
+    });
+});
 
 // ==================== 数据存储 ====================
 const rooms = new Map();      // 房间数据
