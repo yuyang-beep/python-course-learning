@@ -369,54 +369,67 @@
         }
 
         // ==================== 房间操作 ====================
-        function setupButtonListeners() {
-            const createBtn = document.getElementById('createRoomBtn');
-            const startBtn = document.getElementById('startGameBtn');
+        // 创建房间
+        try {
+            document.getElementById('createRoomBtn')?.addEventListener('click', () => {
+                console.log('✅ 创建房间按钮被点击');
+                console.log('socket:', socket);
+                console.log('socket.connected:', socket?.connected);
 
-            if (createBtn) {
-                createBtn.addEventListener('click', () => {
-                    console.log('创建房间按钮被点击');
-                    console.log('socket状态:', socket ? '存在' : '不存在');
-                    console.log('socket连接状态:', socket ? socket.connected : '未创建');
+                if (!socket?.connected) {
+                    console.log('❌ 未连接');
+                    return;
+                }
 
-                    if (!socket || !socket.connected) {
-                        console.error('❌ 未连接到服务器');
-                        alert('正在连接到服务器，请稍候...');
-                        return;
-                    }
-
-                    console.log('✅ 开始创建房间...');
-                    socket.emit('create_room', (response) => {
-                        console.log('✅ 房间创建响应:', response);
-                        adminData.roomCode = response.code;
-                        document.getElementById('displayRoomCode').textContent = response.code;
-                        document.getElementById('displayRoomCode2').textContent = response.code;
-                        showSection('assignmentSection');
-                        console.log('✅ 房间已创建:', response.code);
-                    });
+                console.log('开始emit create_room');
+                socket.emit('create_room', (response) => {
+                    console.log('✅ 创建房间响应:', response);
+                    adminData.roomCode = response.code;
+                    const rc = document.getElementById('displayRoomCode');
+                    const rc2 = document.getElementById('displayRoomCode2');
+                    if (rc) rc.textContent = response.code;
+                    if (rc2) rc2.textContent = response.code;
+                    showSection('assignmentSection');
                 });
-            }
-
-            if (startBtn) {
-                startBtn.addEventListener('click', () => {
-                    if (adminData.assignments.size !== adminData.players.size) {
-                        alert('请为所有玩家分配身份');
-                        return;
-                    }
-
-                    socket.emit('start_game', { roomCode: adminData.roomCode });
-                });
-            }
+            });
+        } catch (e) {
+            console.error('绑定创建房间事件出错:', e);
         }
 
-        // 在DOM加载完成后绑定按钮事件
-        document.addEventListener('DOMContentLoaded', () => {
-            setupButtonListeners();
-        });
+        // 开始游戏
+        try {
+            document.getElementById('startGameBtn')?.addEventListener('click', () => {
+                console.log('开始游戏按钮被点击');
+                if (adminData.assignments.size !== adminData.players.size) {
+                    alert('请为所有玩家分配身份');
+                    return;
+                }
+                socket.emit('start_game', { roomCode: adminData.roomCode });
+            });
+        } catch (e) {
+            console.error('绑定开始游戏事件出错:', e);
+        }
 
-        // 如果DOM已加载，立即绑定
-        if (document.readyState !== 'loading') {
-            setupButtonListeners();
+        // 退出房间
+        try {
+            document.getElementById('exitBtn')?.addEventListener('click', () => {
+                console.log('退出房间按钮被点击');
+                socket.emit('exit_room', {
+                    roomCode: adminData.roomCode,
+                    playerId: null
+                });
+                socket.emit('delete_room', { roomCode: adminData.roomCode });
+                adminData = {
+                    roomCode: null,
+                    gameStarted: false,
+                    currentRound: 1,
+                    players: new Map(),
+                    assignments: new Map()
+                };
+                showSection('createRoomSection');
+            });
+        } catch (e) {
+            console.error('绑定退出房间事件出错:', e);
         }
 
         // ==================== 身份分配 ====================
@@ -474,37 +487,54 @@
             });
         }
 
-        document.getElementById('startRoundBtn').addEventListener('click', () => {
-            const config = {
-                base: parseInt(document.getElementById('baseThreshold').value),
-                m1: parseInt(document.getElementById('minister1').value),
-                m2: parseInt(document.getElementById('minister2').value),
-                childSpecial: document.getElementById('childSpecial').checked
-            };
+        // 开启轮数
+        try {
+            document.getElementById('startRoundBtn')?.addEventListener('click', () => {
+                const config = {
+                    base: parseInt(document.getElementById('baseThreshold').value),
+                    m1: parseInt(document.getElementById('minister1').value),
+                    m2: parseInt(document.getElementById('minister2').value),
+                    childSpecial: document.getElementById('childSpecial').checked
+                };
 
-            socket.emit('start_round', {
-                roomCode: adminData.roomCode,
-                round: adminData.currentRound,
-                config
+                socket.emit('start_round', {
+                    roomCode: adminData.roomCode,
+                    round: adminData.currentRound,
+                    config
+                });
+
+                const startBtn = document.getElementById('startRoundBtn');
+                const endBtn = document.getElementById('endRoundBtn');
+                const voteStats = document.getElementById('voteStats');
+                if (startBtn) startBtn.disabled = true;
+                if (endBtn) endBtn.disabled = false;
+                if (voteStats) voteStats.style.display = 'block';
             });
+        } catch (e) {
+            console.error('绑定开启轮数事件出错:', e);
+        }
 
-            document.getElementById('startRoundBtn').disabled = true;
-            document.getElementById('endRoundBtn').disabled = false;
-            document.getElementById('voteStats').style.display = 'block';
-        });
+        // 结束轮数
+        try {
+            document.getElementById('endRoundBtn')?.addEventListener('click', () => {
+                socket.emit('end_round', {
+                    roomCode: adminData.roomCode,
+                    round: adminData.currentRound
+                });
 
-        document.getElementById('endRoundBtn').addEventListener('click', () => {
-            socket.emit('end_round', {
-                roomCode: adminData.roomCode,
-                round: adminData.currentRound
+                adminData.currentRound++;
+                const roundDisplay = document.getElementById('roundDisplay');
+                const startBtn = document.getElementById('startRoundBtn');
+                const endBtn = document.getElementById('endRoundBtn');
+                const voteStats = document.getElementById('voteStats');
+                if (roundDisplay) roundDisplay.textContent = adminData.currentRound;
+                if (startBtn) startBtn.disabled = false;
+                if (endBtn) endBtn.disabled = true;
+                if (voteStats) voteStats.style.display = 'none';
             });
-
-            adminData.currentRound++;
-            document.getElementById('roundDisplay').textContent = adminData.currentRound;
-            document.getElementById('startRoundBtn').disabled = false;
-            document.getElementById('endRoundBtn').disabled = true;
-            document.getElementById('voteStats').style.display = 'none';
-        });
+        } catch (e) {
+            console.error('绑定结束轮数事件出错:', e);
+        }
 
         function updateVoteStats(stats) {
             const total = adminData.players.size;
@@ -554,23 +584,6 @@
                 tbody.appendChild(row);
             });
         }
-
-        // ==================== 退出 ====================
-        document.getElementById('exitBtn').addEventListener('click', () => {
-            socket.emit('exit_room', {
-                roomCode: adminData.roomCode,
-                playerId: null
-            });
-            socket.emit('delete_room', { roomCode: adminData.roomCode });
-            adminData = {
-                roomCode: null,
-                gameStarted: false,
-                currentRound: 1,
-                players: new Map(),
-                assignments: new Map()
-            };
-            showSection('setupSection');
-        });
 
         console.log('✅ 管理者端已就绪');
     </script>
