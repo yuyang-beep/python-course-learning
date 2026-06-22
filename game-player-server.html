@@ -95,13 +95,12 @@
         <section id="joinSection" class="section active">
             <div class="card">
                 <h2 class="card__title">🎮 加入游戏</h2>
-                <div class="form-group">
-                    <label class="form-group__label">服务器地址</label>
-                    <input type="text" id="serverUrl" class="form-group__input" value="http://localhost:3000" placeholder="http://localhost:3000">
-                </div>
+                <!-- 服务器地址 (自动，隐藏) -->
+                <input type="hidden" id="serverUrl" value="http://localhost:3000">
+
                 <div class="form-group">
                     <label class="form-group__label">房间代码</label>
-                    <input type="text" id="roomCodeInput" class="form-group__input" placeholder="输入房间代码" maxlength="6">
+                    <input type="text" id="roomCodeInput" class="form-group__input" placeholder="输入房间代码（由管理者提供）" maxlength="6" autofocus>
                 </div>
                 <div class="form-group">
                     <label class="form-group__label">玩家名称</label>
