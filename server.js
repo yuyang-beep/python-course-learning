@@ -8,6 +8,7 @@ const http = require('http');
 const socketIO = require('socket.io');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 const server = http.createServer(app);
@@ -34,11 +35,35 @@ app.get('/', (req, res) => {
         version: '1.0.0',
         status: 'running',
         endpoints: {
+            admin: '/admin',
+            player: '/player',
             health: '/health',
             room: '/api/room/:code',
             player: '/api/player/:roomCode/:playerId'
         },
         socketio: 'WebSocket connection available'
+    });
+});
+
+// 管理者端页面
+app.get('/admin', (req, res) => {
+    const filePath = path.join(__dirname, 'game-admin-server.html');
+    fs.readFile(filePath, 'utf8', (err, data) => {
+        if (err) {
+            return res.status(404).json({ error: 'Admin page not found' });
+        }
+        res.type('text/html').send(data);
+    });
+});
+
+// 玩家端页面
+app.get('/player', (req, res) => {
+    const filePath = path.join(__dirname, 'game-player-server.html');
+    fs.readFile(filePath, 'utf8', (err, data) => {
+        if (err) {
+            return res.status(404).json({ error: 'Player page not found' });
+        }
+        res.type('text/html').send(data);
     });
 });
 
