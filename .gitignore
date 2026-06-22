@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+.npm
+*.lock
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+*.log
+
+# Build
+dist/
+build/
+
+# Claude
+.claude/
+
+# Python
+__pycache__/
+*.pyc
+.Python
+
+# Day lessons (keep only game files)
+Day*/

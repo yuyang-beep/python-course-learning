@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>皇帝的新装 - 管理者端</title>
+    <style>
+        :root {
+            --color-gold: #D4AF37;
+            --color-white: #FFFFFF;
+            --color-bg-light: #F5F5F5;
+            --color-text-dark: #333333;
+            --color-text-light: #999999;
+            --color-border: #D4AF37;
+            --color-success: #4CAF50;
+            --color-error: #F44336;
+            --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            --font-size-h1: 32px;
+            --font-size-h2: 20px;
+            --font-size-h3: 16px;
+            --font-size-body: 16px;
+            --font-size-small: 14px;
+            --spacing-xs: 8px;
+            --spacing-sm: 12px;
+            --spacing-md: 15px;
+            --spacing-lg: 20px;
+            --spacing-xl: 30px;
+            --spacing-xxl: 40px;
+            --border-radius: 8px;
+            --shadow-gold: 0 2px 8px rgba(212, 175, 55, 0.2);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font-family);
+            background-color: var(--color-white);
+            color: var(--color-text-dark);
+            font-size: var(--font-size-body);
+        }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: var(--spacing-xxl); }
+        .header {
+            text-align: center;
+            margin-bottom: var(--spacing-xxl);
+            padding-bottom: var(--spacing-xl);
+            border-bottom: 1px solid var(--color-bg-light);
+        }
+
+        .header__title { font-size: var(--font-size-h1); font-weight: 700; margin-bottom: var(--spacing-md); }
+        .header__crown { font-size: 36px; margin-right: var(--spacing-sm); }
+        .header__subtitle { font-size: var(--font-size-small); color: var(--color-text-light); }
+
+        .card {
+            background-color: var(--color-white);
+            border: 1px solid var(--color-border);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-xl);
+            box-shadow: var(--shadow-gold);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .card__title {
+            font-size: var(--font-size-h2);
+            font-weight: 600;
+            color: var(--color-gold);
+            margin-bottom: var(--spacing-xl);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 1px solid var(--color-bg-light);
+        }
+
+        .form-group { margin-bottom: var(--spacing-lg); }
+        .form-group__label {
+            display: block;
+            font-size: var(--font-size-small);
+            color: var(--color-text-dark);
+            margin-bottom: var(--spacing-sm);
+            font-weight: 600;
+        }
+
+        .form-group__input {
+            width: 100%;
+            padding: var(--spacing-md);
+            border: 1px solid var(--color-border);
+            border-radius: var(--border-radius);
+            font-size: var(--font-size-body);
+            font-family: var(--font-family);
+            color: var(--color-text-dark);
+            background-color: var(--color-white);
+        }
+
+        .btn {
+            padding: var(--spacing-lg);
+            background-color: var(--color-gold);
+            color: var(--color-white);
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: var(--font-size-body);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: var(--spacing-md);
+        }
+
+        .btn:hover { background-color: #c9a227; }
+        .btn:disabled { background-color: var(--color-text-light); cursor: not-allowed; opacity: 0.6; }
+        .btn--secondary { background-color: var(--color-text-light); color: var(--color-white); }
+        .btn--secondary:hover { background-color: #777777; }
+        .btn--danger { background-color: var(--color-error); }
+        .btn--danger:hover { background-color: #d32f2f; }
+        .btn--success { background-color: var(--color-success); }
+        .btn--success:hover { background-color: #45a049; }
+
+        .btn-group { display: flex; gap: var(--spacing-lg); margin-top: var(--spacing-lg); }
+        .btn-group > * { flex: 1; margin-top: 0; }
+
+        .room-code {
+            background-color: var(--color-bg-light);
+            padding: var(--spacing-lg);
+            border-radius: var(--border-radius);
+            text-align: center;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .room-code__label { font-size: var(--font-size-small); color: var(--color-text-light); margin-bottom: var(--spacing-sm); }
+        .room-code__value { font-size: 32px; font-weight: 700; color: var(--color-gold); font-family: monospace; }
+
+        .players-list { margin-bottom: var(--spacing-lg); }
+        .players-list__title { font-size: var(--font-size-h3); color: var(--color-gold); margin-bottom: var(--spacing-lg); font-weight: 600; }
+
+        .player-item {
+            display: grid;
+            grid-template-columns: 1fr 150px;
+            gap: var(--spacing-lg);
+            align-items: center;
+            padding: var(--spacing-lg);
+            background-color: var(--color-bg-light);
+            border-radius: var(--border-radius);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .player-item__name { font-weight: 600; color: var(--color-text-dark); }
+        .player-item__role { font-size: var(--font-size-small); color: var(--color-text-light); }
+
+        .role-select {
+            padding: var(--spacing-md);
+            border: 1px solid var(--color-border);
+            border-radius: var(--border-radius);
+            font-family: var(--font-family);
+            background-color: var(--color-white);
+            color: var(--color-text-dark);
+            cursor: pointer;
+        }
+
+        .hidden { display: none; }
+
+        .section { display: none; }
+        .section.active { display: block; }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-xl);
+        }
+
+        @media (max-width: 1024px) {
+            .game-grid { grid-template-columns: 1fr; }
+            .player-item { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="header__title"><span class="header__crown">👑</span>皇帝的新装 - 管理者端</h1>
+            <p class="header__subtitle">游戏房间管理系统</p>
+        </div>
+
+        <!-- 房间创建/加入 -->
+        <section id="setupSection" class="section active">
+            <div class="card">
+                <h2 class="card__title">🎮 游戏房间</h2>
+                <div class="form-group">
+                    <label class="form-group__label">房间代码（留空则创建新房间）</label>
+                    <input type="text" id="roomCodeInput" class="form-group__input" placeholder="输入房间代码或留空">
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn--success" id="createRoomBtn">创建新房间</button>
+                    <button class="btn btn--secondary" id="joinRoomBtn">加入房间</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 身份分配阶段 -->
+        <section id="assignmentSection" class="section">
+            <div class="card">
+                <h2 class="card__title">👥 身份分配</h2>
+
+                <div class="room-code">
+                    <div class="room-code__label">房间代码</div>
+                    <div class="room-code__value" id="displayRoomCode">-----</div>
+                </div>
+
+                <div class="players-list">
+                    <div class="players-list__title">已加入的玩家（<span id="playerCount">0</span>/8）</div>
+                    <div id="playersAssignmentList"></div>
+                </div>
+
+                <div style="background-color: var(--color-bg-light); padding: var(--spacing-lg); border-radius: var(--border-radius); margin-bottom: var(--spacing-lg); font-size: var(--font-size-small); color: var(--color-text-light);">
+                    💡 为每个玩家分配身份，然后点击"开始游戏"
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn--success" id="startGameBtn">开始游戏</button>
+                    <button class="btn btn--danger" id="exitBtn">退出房间</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 游戏进行中 -->
+        <section id="gameSection" class="section">
+            <div class="game-grid">
+                <!-- 左：房间信息 -->
+                <div class="card">
+                    <h2 class="card__title">📋 房间信息</h2>
+
+                    <div class="room-code">
+                        <div class="room-code__label">房间代码</div>
+                        <div class="room-code__value" id="displayRoomCode2">-----</div>
+                    </div>
+
+                    <div class="players-list">
+                        <div class="players-list__title">👥 玩家列表</div>
+                        <div id="gamePlayersList"></div>
+                    </div>
+                </div>
+
+                <!-- 右：轮数控制 -->
+                <div class="card">
+                    <h2 class="card__title">⚙️ 第 <span id="roundDisplay">1</span> 轮</h2>
+
+                    <div class="form-group">
+                        <label class="form-group__label">基础阈值</label>
+                        <input type="number" id="baseThreshold" class="form-group__input" value="3" min="0" max="8">
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg);">
+                        <div class="form-group">
+                            <label class="form-group__label">大臣1 调整</label>
+                            <select id="minister1" class="form-group__input">
+                                <option value="-1">-1</option>
+                                <option value="0" selected>0</option>
+                                <option value="1">+1</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-group__label">大臣2 调整</label>
+                            <select id="minister2" class="form-group__input">
+                                <option value="-1">-1</option>
+                                <option value="0" selected>0</option>
+                                <option value="1">+1</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-group__label">
+                            <input type="checkbox" id="childSpecial"> 🧒 孩子本轮使用特殊质疑
+                        </label>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn--success" id="startRoundBtn">开启本轮</button>
+                        <button class="btn btn--secondary" id="endRoundBtn" disabled>结束本轮</button>
+                    </div>
+
+                    <div id="voteStats" style="margin-top: var(--spacing-xl); display: none;">
+                        <div style="font-size: var(--font-size-h3); color: var(--color-gold); margin-bottom: var(--spacing-lg); font-weight: 600;">🗳️ 投票统计</div>
+                        <div id="voteStatsList"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 结算结果 -->
+            <div class="card">
+                <h2 class="card__title">📊 本轮结果</h2>
+                <table style="width: 100%; border-collapse: collapse; font-size: var(--font-size-small);">
+                    <thead>
+                        <tr style="background-color: var(--color-gold); color: var(--color-white);">
+                            <th style="padding: var(--spacing-md); text-align: left;">玩家</th>
+                            <th style="padding: var(--spacing-md); text-align: left;">身份</th>
+                            <th style="padding: var(--spacing-md); text-align: left;">投票</th>
+                            <th style="padding: var(--spacing-md); text-align: right;">本轮</th>
+                            <th style="padding: var(--spacing-md); text-align: right;">累计</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultTable"></tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"></script>
+
+    <script>
+        // ==================== Firebase 配置 ====================
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        let db = null;
+        try {
+            if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.database();
+            }
+        } catch (e) {
+            console.error('Firebase 初始化失败', e);
+        }
+
+        const roles = ['裁缝', '裁缝', '大臣', '大臣', '百姓', '百姓', '百姓', '孩子'];
+        const roleEmojis = { '裁缝': '👔', '大臣': '🧑‍⚖️', '百姓': '👨', '孩子': '🧒' };
+
+        let adminData = {
+            roomCode: null,
+            gameStarted: false,
+            currentRound: 1,
+            players: {},
+            assignments: {}
+        };
+
+        const showSection = (id) => {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        };
+
+        // ==================== 房间创建/加入 ====================
+        document.getElementById('createRoomBtn').addEventListener('click', () => {
+            if (!db) { alert('Firebase 未配置'); return; }
+            const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+            adminData.roomCode = code;
+            db.ref('rooms/' + code).set({
+                status: 'waiting',
+                createdAt: Date.now(),
+                players: {},
+                assignments: {},
+                currentRound: 1,
+                roundConfigs: {},
+                rounds: {}
+            }).then(() => {
+                document.getElementById('displayRoomCode').textContent = code;
+                document.getElementById('displayRoomCode2').textContent = code;
+                showSection('assignmentSection');
+                setupListeners();
+            });
+        });
+
+        document.getElementById('joinRoomBtn').addEventListener('click', () => {
+            if (!db) { alert('Firebase 未配置'); return; }
+            const code = document.getElementById('roomCodeInput').value.trim().toUpperCase();
+            if (!code) { alert('请输入房间代码'); return; }
+            db.ref('rooms/' + code).get().then(snap => {
+                if (snap.exists()) {
+                    adminData.roomCode = code;
+                    document.getElementById('displayRoomCode').textContent = code;
+                    document.getElementById('displayRoomCode2').textContent = code;
+                    showSection('assignmentSection');
+                    setupListeners();
+                } else {
+                    alert('房间不存在');
+                }
+            });
+        });
+
+        // ==================== 监听玩家加入 ====================
+        function setupListeners() {
+            const code = adminData.roomCode;
+            if (!db) return;
+
+            db.ref('rooms/' + code + '/players').on('value', snap => {
+                adminData.players = snap.val() || {};
+                updateAssignmentUI();
+            });
+
+            db.ref('rooms/' + code + '/assignments').on('value', snap => {
+                adminData.assignments = snap.val() || {};
+                updateGameUI();
+            });
+        }
+
+        function updateAssignmentUI() {
+            const list = document.getElementById('playersAssignmentList');
+            list.innerHTML = '';
+            const playerIds = Object.keys(adminData.players);
+            document.getElementById('playerCount').textContent = playerIds.length;
+
+            playerIds.forEach(pid => {
+                const player = adminData.players[pid];
+                const assigned = adminData.assignments[pid];
+
+                const item = document.createElement('div');
+                item.className = 'player-item';
+                item.innerHTML = `
+                    <div>
+                        <div class="player-item__name">${player.name}</div>
+                        <div class="player-item__role" id="role-${pid}">${assigned ? assigned : '未分配'}</div>
+                    </div>
+                    <select class="role-select" onchange="assignRole('${pid}', this.value)">
+                        <option value="">-- 选择身份 --</option>
+                        ${roles.map(r => `<option value="${r}" ${assigned === r ? 'selected' : ''}>${r}</option>`).join('')}
+                    </select>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function assignRole(playerId, role) {
+            if (!db || !adminData.roomCode) return;
+            if (!role) {
+                db.ref('rooms/' + adminData.roomCode + '/assignments/' + playerId).remove();
+            } else {
+                db.ref('rooms/' + adminData.roomCode + '/assignments/' + playerId).set(role);
+            }
+        }
+
+        // ==================== 开始游戏 ====================
+        document.getElementById('startGameBtn').addEventListener('click', () => {
+            const playerIds = Object.keys(adminData.players);
+            const assigned = Object.keys(adminData.assignments);
+            if (assigned.length !== playerIds.length) {
+                alert('请为所有玩家分配身份');
+                return;
+            }
+            if (!db || !adminData.roomCode) return;
+
+            adminData.gameStarted = true;
+            db.ref('rooms/' + adminData.roomCode).update({
+                status: 'playing',
+                assignments: adminData.assignments
+            });
+
+            showSection('gameSection');
+            updateGameUI();
+        });
+
+        // ==================== 游戏 UI ====================
+        function updateGameUI() {
+            const list = document.getElementById('gamePlayersList');
+            list.innerHTML = '';
+
+            Object.keys(adminData.players).forEach(pid => {
+                const player = adminData.players[pid];
+                const role = adminData.assignments[pid] || '?';
+                const score = player.totalScore || 0;
+
+                const item = document.createElement('div');
+                item.className = 'player-item';
+                item.style.gridTemplateColumns = '1fr 100px';
+                item.innerHTML = `
+                    <div>
+                        <div class="player-item__name">${roleEmojis[role]} ${player.name}</div>
+                        <div class="player-item__role">${role}</div>
+                    </div>
+                    <div style="text-align: right; font-weight: 700; color: var(--color-gold);">${score}</div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        // ==================== 轮数控制 ====================
+        document.getElementById('startRoundBtn').addEventListener('click', () => {
+            if (!db || !adminData.roomCode) return;
+
+            const config = {
+                base: parseInt(document.getElementById('baseThreshold').value),
+                m1: parseInt(document.getElementById('minister1').value),
+                m2: parseInt(document.getElementById('minister2').value),
+                childSpecial: document.getElementById('childSpecial').checked
+            };
+
+            db.ref('rooms/' + adminData.roomCode).update({
+                status: 'round_active',
+                ['roundConfigs/' + adminData.currentRound]: config
+            });
+
+            document.getElementById('startRoundBtn').disabled = true;
+            document.getElementById('endRoundBtn').disabled = false;
+            document.getElementById('voteStats').style.display = 'block';
+
+            monitorVotes();
+        });
+
+        function monitorVotes() {
+            if (!db || !adminData.roomCode) return;
+            const round = adminData.currentRound;
+            db.ref('rooms/' + adminData.roomCode + '/rounds/' + round + '/votes').on('value', snap => {
+                const votes = snap.val() || {};
+                updateVoteStats(votes);
+            });
+        }
+
+        function updateVoteStats(votes) {
+            const stats = { '质疑': 0, '附和': 0, '沉默': 0, '未投': 0 };
+            Object.keys(adminData.players).forEach(pid => {
+                const vote = votes[pid];
+                if (vote) stats[vote]++;
+                else stats['未投']++;
+            });
+
+            const total = Object.keys(adminData.players).length;
+            const html = `
+                <div style="background-color: var(--color-bg-light); padding: var(--spacing-md); border-radius: var(--border-radius); margin-bottom: var(--spacing-md);">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: var(--spacing-sm);">
+                        <span>💎 质疑</span>
+                        <strong style="color: var(--color-gold);">${stats['质疑']}/${total}</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: var(--spacing-sm);">
+                        <span>✋ 附和</span>
+                        <strong style="color: var(--color-gold);">${stats['附和']}/${total}</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: var(--spacing-sm);">
+                        <span>🤐 沉默</span>
+                        <strong style="color: var(--color-gold);">${stats['沉默']}/${total}</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>⏳ 未投</span>
+                        <strong style="color: var(--color-gold);">${stats['未投']}/${total}</strong>
+                    </div>
+                </div>
+            `;
+            document.getElementById('voteStatsList').innerHTML = html;
+        }
+
+        document.getElementById('endRoundBtn').addEventListener('click', () => {
+            if (!db || !adminData.roomCode) return;
+
+            db.ref('rooms/' + adminData.roomCode).update({
+                status: 'round_completed',
+                currentRound: adminData.currentRound + 1
+            }).then(() => {
+                adminData.currentRound++;
+                document.getElementById('roundDisplay').textContent = adminData.currentRound;
+                document.getElementById('startRoundBtn').disabled = false;
+                document.getElementById('endRoundBtn').disabled = true;
+                document.getElementById('voteStats').style.display = 'none';
+                document.getElementById('resultTable').innerHTML = '';
+            });
+        });
+
+        // ==================== 退出 ====================
+        document.getElementById('exitBtn').addEventListener('click', () => {
+            if (!db || !adminData.roomCode) return;
+            db.ref('rooms/' + adminData.roomCode).remove().then(() => {
+                adminData = { roomCode: null, gameStarted: false };
+                showSection('setupSection');
+                document.getElementById('roomCodeInput').value = '';
+            });
+        });
+
+        console.log('✅ 管理者端已就绪');
+    </script>
+</body>
+</html>

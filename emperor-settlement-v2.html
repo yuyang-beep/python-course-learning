@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>皇帝的新装 - 结算系统</title>
+    <style>
+        /* ==================== CSS 变量定义 ==================== */
+        :root {
+            /* 色彩系统 */
+            --color-gold: #D4AF37;
+            --color-white: #FFFFFF;
+            --color-bg-light: #F5F5F5;
+            --color-text-dark: #333333;
+            --color-text-light: #999999;
+            --color-border: #D4AF37;
+
+            /* 排版系统 */
+            --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            --font-size-h1: 32px;
+            --font-size-h2: 20px;
+            --font-size-h3: 16px;
+            --font-size-body: 16px;
+            --font-size-small: 14px;
+            --font-size-tiny: 12px;
+            --font-weight-bold: 700;
+            --font-weight-semi: 600;
+            --font-weight-normal: 400;
+
+            /* 间距系统 */
+            --spacing-xs: 8px;
+            --spacing-sm: 12px;
+            --spacing-md: 15px;
+            --spacing-lg: 20px;
+            --spacing-xl: 30px;
+            --spacing-xxl: 40px;
+
+            /* 圆角 */
+            --border-radius: 8px;
+
+            /* 阴影 */
+            --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.12);
+            --shadow-gold: 0 2px 8px rgba(212, 175, 55, 0.2);
+        }
+
+        /* ==================== 全局样式 ==================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--color-white);
+            color: var(--color-text-dark);
+            font-size: var(--font-size-body);
+            line-height: 1.6;
+        }
+
+        /* ==================== 容器 ==================== */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: var(--spacing-xxl);
+        }
+
+        /* ==================== 页头 ==================== */
+        .header {
+            text-align: center;
+            margin-bottom: var(--spacing-xxl);
+            padding-bottom: var(--spacing-xl);
+            border-bottom: 1px solid var(--color-bg-light);
+        }
+
+        .header__title {
+            font-size: var(--font-size-h1);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-dark);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .header__crown {
+            display: inline-block;
+            font-size: 36px;
+            margin-right: var(--spacing-sm);
+        }
+
+        .header__subtitle {
+            font-size: var(--font-size-small);
+            color: var(--color-text-light);
+        }
+
+        /* ==================== 主内容区 ==================== */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-xl);
+            margin-bottom: var(--spacing-xxl);
+        }
+
+        /* 响应式：平板和手机 */
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ==================== 卡片基础样式 ==================== */
+        .card {
+            background-color: var(--color-white);
+            border: 1px solid var(--color-border);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-xl);
+            box-shadow: var(--shadow-gold);
+        }
+
+        .card__title {
+            font-size: var(--font-size-h2);
+            font-weight: var(--font-weight-semi);
+            color: var(--color-gold);
+            margin-bottom: var(--spacing-xl);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 1px solid var(--color-bg-light);
+        }
+
+        /* ==================== 轮数选择器 ==================== */
+        .round-selector {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+            justify-content: center;
+        }
+
+        .round-btn {
+            width: 50px;
+            height: 50px;
+            border: 1px solid var(--color-border);
+            background-color: var(--color-white);
+            color: var(--color-gold);
+            font-size: var(--font-size-small);
+            font-weight: var(--font-weight-semi);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .round-btn:hover {
+            color: var(--color-gold);
+            font-weight: var(--font-weight-bold);
+        }
+
+        .round-btn.active {
+            background-color: var(--color-gold);
+            color: var(--color-white);
+            border-color: var(--color-gold);
+        }
+
+        /* ==================== 表单元素 ==================== */
+        .form-group {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .form-group__label {
+            display: block;
+            font-size: var(--font-size-small);
+            color: var(--color-text-dark);
+            margin-bottom: var(--spacing-sm);
+            font-weight: var(--font-weight-semi);
+        }
+
+        .form-group__input,
+        .form-group__select {
+            width: 100%;
+            padding: var(--spacing-md);
+            border: 1px solid var(--color-border);
+            border-radius: var(--border-radius);
+            font-size: var(--font-size-body);
+            font-family: var(--font-family);
+            color: var(--color-text-dark);
+            background-color: var(--color-white);
+            transition: all 0.2s ease;
+        }
+
+        .form-group__input:focus,
+        .form-group__select:focus {
+            outline: none;
+            border-color: var(--color-gold);
+            box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.1);
+        }
+
+        /* ==================== 双列表单 ==================== */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-lg);
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ==================== 阈值显示框 ==================== */
+        .threshold-box {
+            background-color: var(--color-gold);
+            color: var(--color-white);
+            padding: var(--spacing-lg);
+            border-radius: var(--border-radius);
+            text-align: center;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .threshold-box__label {
+            font-size: var(--font-size-small);
+            margin-bottom: var(--spacing-sm);
+            opacity: 0.9;
+        }
+
+        .threshold-box__value {
+            font-size: 28px;
+            font-weight: var(--font-weight-bold);
+        }
+
+        /* ==================== 复选框 ==================== */
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-lg);
+            background-color: var(--color-bg-light);
+            border-radius: var(--border-radius);
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--color-gold);
+        }
+
+        .checkbox-group__label {
+            font-size: var(--font-size-body);
+            color: var(--color-text-dark);
+            cursor: pointer;
+            margin: 0;
+        }
+
+        /* ==================== 按钮 ==================== */
+        .btn {
+            width: 100%;
+            padding: var(--spacing-lg);
+            background-color: var(--color-gold);
+            color: var(--color-white);
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: var(--font-size-body);
+            font-weight: var(--font-weight-semi);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: var(--spacing-md);
+        }
+
+        .btn:hover {
+            background-color: #c9a227;
+            box-shadow: var(--shadow-medium);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn--secondary {
+            background-color: var(--color-text-light);
+            color: var(--color-white);
+        }
+
+        .btn--secondary:hover {
+            background-color: #777777;
+        }
+
+        /* ==================== 结果区域 ==================== */
+        .result-section {
+            background-color: var(--color-bg-light);
+            padding: var(--spacing-lg);
+            border-radius: var(--border-radius);
+            margin-bottom: var(--spacing-lg);
+            display: none;
+        }
+
+        .result-section.visible {
+            display: block;
+        }
+
+        .result-status {
+            font-size: 24px;
+            font-weight: var(--font-weight-bold);
+            color: var(--color-gold);
+            text-align: center;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .result-detail {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-md);
+            font-size: var(--font-size-small);
+            color: var(--color-text-light);
+            padding-bottom: var(--spacing-lg);
+            border-bottom: 1px solid var(--color-border);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .result-list {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .result-list__title {
+            font-size: var(--font-size-small);
+            color: var(--color-gold);
+            font-weight: var(--font-weight-semi);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .result-list__item {
+            font-size: var(--font-size-body);
+            color: var(--color-text-dark);
+            padding: var(--spacing-sm) 0;
+        }
+
+        /* ==================== 排名区域 ==================== */
+        .ranking-section {
+            margin-top: var(--spacing-xxl);
+        }
+
+        .ranking-section__title {
+            font-size: var(--font-size-h2);
+            font-weight: var(--font-weight-semi);
+            color: var(--color-gold);
+            margin-bottom: var(--spacing-xl);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 1px solid var(--color-bg-light);
+        }
+
+        .ranking-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .ranking-item {
+            display: grid;
+            grid-template-columns: 60px 1fr 100px;
+            gap: var(--spacing-lg);
+            align-items: center;
+            padding: var(--spacing-lg);
+            background-color: var(--color-bg-light);
+            border-radius: var(--border-radius);
+            border-left: 3px solid var(--color-gold);
+        }
+
+        .ranking-item__rank {
+            font-size: 20px;
+            text-align: center;
+        }
+
+        .ranking-item__info {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+
+        .ranking-item__name {
+            font-size: var(--font-size-body);
+            font-weight: var(--font-weight-semi);
+            color: var(--color-text-dark);
+        }
+
+        .ranking-item__role {
+            font-size: var(--font-size-small);
+            color: var(--color-text-light);
+        }
+
+        .ranking-item__score {
+            font-size: 18px;
+            font-weight: var(--font-weight-bold);
+            color: var(--color-gold);
+            text-align: right;
+        }
+
+        /* ==================== 响应式设计 ==================== */
+        @media (max-width: 768px) {
+            .container {
+                padding: var(--spacing-lg);
+            }
+
+            .header {
+                margin-bottom: var(--spacing-lg);
+                padding-bottom: var(--spacing-lg);
+            }
+
+            .header__title {
+                font-size: 24px;
+            }
+
+            .card {
+                padding: var(--spacing-lg);
+            }
+
+            .ranking-item {
+                grid-template-columns: 50px 1fr 80px;
+                gap: var(--spacing-md);
+            }
+        }
+
+        /* ==================== 实用工具类 ==================== */
+        .text-center {
+            text-align: center;
+        }
+
+        .mt {
+            margin-top: var(--spacing-lg);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* ==================== 游戏结束屏幕 ==================== */
+        .game-over-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(255, 255, 255, 0.9) 100%);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: var(--spacing-xl);
+        }
+
+        .game-over-screen.visible {
+            display: flex;
+        }
+
+        .game-over-modal {
+            background-color: var(--color-white);
+            border: 2px solid var(--color-gold);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-xxl);
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            animation: slideUp 0.4s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .game-over-modal__title {
+            font-size: 48px;
+            font-weight: var(--font-weight-bold);
+            color: var(--color-gold);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .game-over-modal__trophy {
+            font-size: 80px;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .game-over-modal__subtitle {
+            font-size: var(--font-size-h2);
+            color: var(--color-text-dark);
+            margin-bottom: var(--spacing-xxl);
+        }
+
+        .final-ranking {
+            text-align: left;
+            margin-bottom: var(--spacing-xxl);
+            border: 1px solid var(--color-border);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        .final-ranking__item {
+            display: grid;
+            grid-template-columns: 80px 1fr 100px;
+            gap: var(--spacing-lg);
+            align-items: center;
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--color-bg-light);
+        }
+
+        .final-ranking__item:last-child {
+            border-bottom: none;
+        }
+
+        .final-ranking__item.first {
+            background-color: var(--color-bg-light);
+        }
+
+        .final-ranking__rank {
+            font-size: 32px;
+            text-align: center;
+            font-weight: var(--font-weight-bold);
+        }
+
+        .final-ranking__name {
+            font-size: var(--font-size-body);
+            font-weight: var(--font-weight-semi);
+            color: var(--color-text-dark);
+        }
+
+        .final-ranking__score {
+            font-size: 24px;
+            font-weight: var(--font-weight-bold);
+            color: var(--color-gold);
+            text-align: right;
+        }
+
+        .game-over-modal__btn-group {
+            display: flex;
+            gap: var(--spacing-lg);
+        }
+
+        .game-over-modal__btn {
+            flex: 1;
+            padding: var(--spacing-lg);
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: var(--font-size-body);
+            font-weight: var(--font-weight-semi);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .game-over-modal__btn--primary {
+            background-color: var(--color-gold);
+            color: var(--color-white);
+        }
+
+        .game-over-modal__btn--primary:hover {
+            background-color: #c9a227;
+        }
+
+        .game-over-modal__btn--secondary {
+            background-color: var(--color-bg-light);
+            color: var(--color-text-dark);
+            border: 1px solid var(--color-border);
+        }
+
+        .game-over-modal__btn--secondary:hover {
+            background-color: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- ==================== 页头 ==================== -->
+        <div class="header">
+            <h1 class="header__title">
+                <span class="header__crown">👑</span>皇帝的新装
+            </h1>
+            <p class="header__subtitle">Vibe-Coding 结算系统 v2.0</p>
+        </div>
+
+        <!-- ==================== 轮数选择器 ==================== -->
+        <div class="round-selector">
+            <button class="round-btn active" data-round="1">第1轮</button>
+            <button class="round-btn" data-round="2">第2轮</button>
+            <button class="round-btn" data-round="3">第3轮</button>
+            <button class="round-btn" data-round="4">第4轮</button>
+            <button class="round-btn" data-round="5">第5轮</button>
+        </div>
+
+        <!-- ==================== 主内容区 ==================== -->
+        <div class="main-content">
+            <!-- ========== 左侧：投票输入 ========== -->
+            <div class="card">
+                <h2 class="card__title">⚙️ 第 <span class="current-round">1</span> 轮设置</h2>
+
+                <!-- 基础阈值 -->
+                <div class="form-group">
+                    <label class="form-group__label">基础阈值</label>
+                    <select class="form-group__select" id="baseThreshold">
+                        <option value="2">2</option>
+                        <option value="3" selected>3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                    </select>
+                </div>
+
+                <!-- 大臣调整 -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-group__label">大臣1 调整</label>
+                        <select class="form-group__select" id="minister1Adjust">
+                            <option value="-1">-1</option>
+                            <option value="0" selected>0</option>
+                            <option value="1">+1</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-group__label">大臣2 调整</label>
+                        <select class="form-group__select" id="minister2Adjust">
+                            <option value="-1">-1</option>
+                            <option value="0" selected>0</option>
+                            <option value="1">+1</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 有效阈值显示 -->
+                <div class="threshold-box">
+                    <div class="threshold-box__label">有效阈值</div>
+                    <div class="threshold-box__value" id="effectiveThreshold">3</div>
+                </div>
+
+                <!-- 质疑票数 -->
+                <div class="form-group">
+                    <label class="form-group__label">质疑票数</label>
+                    <input type="number" class="form-group__input" id="challengeVotes" value="0" min="0" max="9">
+                </div>
+
+                <!-- 孩子特殊质疑 -->
+                <div class="checkbox-group">
+                    <input type="checkbox" id="childSpecial">
+                    <label class="checkbox-group__label" for="childSpecial">🧒 孩子本轮使用特殊质疑</label>
+                </div>
+
+                <!-- 投票界面 -->
+                <div id="votingSection" style="margin-top: var(--spacing-xl);">
+                    <h3 style="font-size: var(--font-size-h3); color: var(--color-gold); margin-bottom: var(--spacing-lg);">🗳️ 投票</h3>
+                    <div id="votingPlayers" style="display: flex; flex-direction: column; gap: var(--spacing-lg);"></div>
+                </div>
+
+                <!-- 结算按钮 -->
+                <button class="btn" id="calculateBtn">💾 结算本轮</button>
+                <button class="btn btn--secondary" id="resetBtn">🔄 重置表单</button>
+            </div>
+
+            <!-- ========== 右侧：结算结果 ========== -->
+            <div class="card">
+                <h2 class="card__title">📊 第 <span class="result-round">1</span> 轮结果</h2>
+
+                <!-- 结果展示 -->
+                <div class="result-section" id="resultSection">
+                    <div class="result-status" id="resultStatus">质疑成功！</div>
+
+                    <div class="result-detail">
+                        <div>
+                            <span class="result-list__title">有效阈值</span>
+                            <div id="resultThreshold">3</div>
+                        </div>
+                        <div>
+                            <span class="result-list__title">质疑票数</span>
+                            <div id="resultVotes">0</div>
+                        </div>
+                    </div>
+
+                    <div class="result-list">
+                        <div class="result-list__title">✅ 得分者</div>
+                        <div id="resultWinners">
+                            <div class="result-list__item">待结算</div>
+                        </div>
+                    </div>
+
+                    <div class="result-list">
+                        <div class="result-list__title">❌ 扣分者</div>
+                        <div id="resultLosers">
+                            <div class="result-list__item">待结算</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 排名区域 -->
+                <div class="ranking-section">
+                    <h3 class="ranking-section__title">🏆 实时排名</h3>
+                    <div class="ranking-list" id="rankingList">
+                        <div class="ranking-item">
+                            <div class="ranking-item__rank">1️⃣</div>
+                            <div class="ranking-item__info">
+                                <div class="ranking-item__name">孩子</div>
+                                <div class="ranking-item__role">孩子</div>
+                            </div>
+                            <div class="ranking-item__score">0</div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="ranking-item__rank">2️⃣</div>
+                            <div class="ranking-item__info">
+                                <div class="ranking-item__name">大臣1</div>
+                                <div class="ranking-item__role">大臣</div>
+                            </div>
+                            <div class="ranking-item__score">0</div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="ranking-item__rank">3️⃣</div>
+                            <div class="ranking-item__info">
+                                <div class="ranking-item__name">大臣2</div>
+                                <div class="ranking-item__role">大臣</div>
+                            </div>
+                            <div class="ranking-item__score">0</div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="ranking-item__rank">4️⃣</div>
+                            <div class="ranking-item__info">
+                                <div class="ranking-item__name">裁缝1</div>
+                                <div class="ranking-item__role">裁缝</div>
+                            </div>
+                            <div class="ranking-item__score">0</div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="ranking-item__rank">5️⃣</div>
+                            <div class="ranking-item__info">
+                                <div class="ranking-item__name">裁缝2</div>
+                                <div class="ranking-item__role">裁缝</div>
+                            </div>
+                            <div class="ranking-item__score">0</div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="ranking-item__rank">6️⃣</div>
+                            <div class="ranking-item__info">
+                                <div class="ranking-item__name">百姓1</div>
+                                <div class="ranking-item__role">百姓</div>
+                            </div>
+                            <div class="ranking-item__score">0</div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="ranking-item__rank">7️⃣</div>
+                            <div class="ranking-item__info">
+                                <div class="ranking-item__name">百姓2</div>
+                                <div class="ranking-item__role">百姓</div>
+                            </div>
+                            <div class="ranking-item__score">0</div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="ranking-item__rank">8️⃣</div>
+                            <div class="ranking-item__info">
+                                <div class="ranking-item__name">百姓3</div>
+                                <div class="ranking-item__role">百姓</div>
+                            </div>
+                            <div class="ranking-item__score">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 游戏结束屏幕 ==================== -->
+        <div class="game-over-screen" id="gameOverScreen">
+            <div class="game-over-modal">
+                <div class="game-over-modal__trophy">🏆</div>
+                <div class="game-over-modal__title">游戏结束！</div>
+                <div class="game-over-modal__subtitle">最终排名</div>
+
+                <div class="final-ranking" id="finalRankingList"></div>
+
+                <div class="game-over-modal__btn-group">
+                    <button class="game-over-modal__btn game-over-modal__btn--secondary" id="backToRound1Btn">返回第1轮</button>
+                    <button class="game-over-modal__btn game-over-modal__btn--primary" id="shareResultBtn">分享结果</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== 数据管理 ====================
+        const gameData = {
+            currentRound: 1,
+            childSpecialUsed: false,
+            players: [
+                { name: '裁缝1', role: '裁缝', score: 0 },
+                { name: '裁缝2', role: '裁缝', score: 0 },
+                { name: '大臣1', role: '大臣', score: 0 },
+                { name: '大臣2', role: '大臣', score: 0 },
+                { name: '百姓1', role: '百姓', score: 0 },
+                { name: '百姓2', role: '百姓', score: 0 },
+                { name: '百姓3', role: '百姓', score: 0 },
+                { name: '孩子', role: '孩子', score: 0 }
+            ],
+            rounds: {
+                1: { base: 3, m1: 0, m2: 0, childSpecial: false, votes: {} },
+                2: { base: 3, m1: 0, m2: 0, childSpecial: false, votes: {} },
+                3: { base: 3, m1: 0, m2: 0, childSpecial: false, votes: {} },
+                4: { base: 3, m1: 0, m2: 0, childSpecial: false, votes: {} },
+                5: { base: 3, m1: 0, m2: 0, childSpecial: false, votes: {} }
+            }
+        };
+
+        // ==================== DOM 元素引用 ====================
+        const elements = {
+            // 轮数按钮
+            roundBtns: document.querySelectorAll('.round-btn'),
+            currentRoundDisplay: document.querySelector('.current-round'),
+            resultRoundDisplay: document.querySelector('.result-round'),
+
+            // 表单输入
+            baseThreshold: document.getElementById('baseThreshold'),
+            minister1Adjust: document.getElementById('minister1Adjust'),
+            minister2Adjust: document.getElementById('minister2Adjust'),
+            challengeVotes: document.getElementById('challengeVotes'),
+            childSpecial: document.getElementById('childSpecial'),
+
+            // 显示
+            effectiveThreshold: document.getElementById('effectiveThreshold'),
+
+            // 按钮
+            calculateBtn: document.getElementById('calculateBtn'),
+            resetBtn: document.getElementById('resetBtn')
+        };
+
+        // ==================== 轮数切换 ====================
+        function selectRound(roundNum) {
+            // 保存当前轮的数据
+            saveRoundData(gameData.currentRound);
+
+            // 更新当前轮
+            gameData.currentRound = roundNum;
+
+            // 更新按钮样式
+            elements.roundBtns.forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // 更新显示
+            elements.currentRoundDisplay.textContent = roundNum;
+            elements.resultRoundDisplay.textContent = roundNum;
+
+            // 加载该轮数据
+            loadRoundData(roundNum);
+
+            // 更新有效阈值显示
+            updateEffectiveThreshold();
+        }
+
+        // ==================== 数据保存/加载 ====================
+        function saveRoundData(roundNum) {
+            gameData.rounds[roundNum] = {
+                base: parseInt(elements.baseThreshold.value),
+                m1: parseInt(elements.minister1Adjust.value),
+                m2: parseInt(elements.minister2Adjust.value),
+                votes: parseInt(elements.challengeVotes.value),
+                childSpecial: elements.childSpecial.checked
+            };
+        }
+
+        function loadRoundData(roundNum) {
+            const data = gameData.rounds[roundNum];
+            elements.baseThreshold.value = data.base;
+            elements.minister1Adjust.value = data.m1;
+            elements.minister2Adjust.value = data.m2;
+            elements.challengeVotes.value = data.votes;
+            elements.childSpecial.checked = data.childSpecial;
+        }
+
+        // ==================== 有效阈值计算 ====================
+        function updateEffectiveThreshold() {
+            const base = parseInt(elements.baseThreshold.value);
+            const m1 = parseInt(elements.minister1Adjust.value);
+            const m2 = parseInt(elements.minister2Adjust.value);
+            const effective = base + m1 + m2;
+
+            elements.effectiveThreshold.textContent = effective;
+        }
+
+        // ==================== 表单重置 ====================
+        function resetForm() {
+            elements.baseThreshold.value = 3;
+            elements.minister1Adjust.value = 0;
+            elements.minister2Adjust.value = 0;
+            elements.challengeVotes.value = 0;
+            elements.childSpecial.checked = false;
+            updateEffectiveThreshold();
+        }
+
+        // ==================== 投票玩家管理 ====================
+        function getVotingPlayers(roundNum) {
+            // 第1轮：大臣2、百姓3 = 5人（孩子不投票）
+            // 其他轮：大臣2、百姓3 + 孩子（如果已使用特殊质疑或当前轮使用）
+            const votingPlayers = [
+                gameData.players[2], // 大臣1
+                gameData.players[3], // 大臣2
+                gameData.players[4], // 百姓1
+                gameData.players[5], // 百姓2
+                gameData.players[6]  // 百姓3
+            ];
+
+            // 检查孩子是否参与投票
+            if (roundNum > 1 || elements.childSpecial.checked) {
+                votingPlayers.push(gameData.players[7]); // 孩子
+            }
+
+            return votingPlayers;
+        }
+
+        // ==================== 生成投票界面 ====================
+        function renderVotingInterface() {
+            const votingPlayers = getVotingPlayers(gameData.currentRound);
+            const container = document.getElementById('votingPlayers');
+            container.innerHTML = '';
+
+            votingPlayers.forEach(player => {
+                const playerVote = document.createElement('div');
+                playerVote.style.cssText = `
+                    display: grid;
+                    grid-template-columns: 100px 1fr;
+                    gap: var(--spacing-lg);
+                    align-items: center;
+                    padding: var(--spacing-md);
+                    background-color: var(--color-bg-light);
+                    border-radius: var(--border-radius);
+                `;
+
+                const nameDiv = document.createElement('div');
+                nameDiv.style.cssText = `
+                    font-weight: var(--font-weight-semi);
+                    color: var(--color-text-dark);
+                `;
+                nameDiv.textContent = player.name;
+
+                const buttonsDiv = document.createElement('div');
+                buttonsDiv.style.cssText = `
+                    display: flex;
+                    gap: var(--spacing-sm);
+                `;
+
+                ['质疑', '附和', '沉默'].forEach(choice => {
+                    const btn = document.createElement('button');
+                    btn.textContent = choice;
+                    btn.style.cssText = `
+                        flex: 1;
+                        padding: var(--spacing-sm);
+                        border: 1px solid var(--color-border);
+                        background-color: var(--color-white);
+                        color: var(--color-gold);
+                        border-radius: var(--border-radius);
+                        cursor: pointer;
+                        font-weight: var(--font-weight-semi);
+                        transition: all 0.2s ease;
+                    `;
+
+                    btn.addEventListener('click', () => {
+                        // 移除其他按钮的选中状态
+                        buttonsDiv.querySelectorAll('button').forEach(b => {
+                            b.style.backgroundColor = 'var(--color-white)';
+                            b.style.color = 'var(--color-gold)';
+                        });
+
+                        // 设置当前按钮为选中状态
+                        btn.style.backgroundColor = 'var(--color-gold)';
+                        btn.style.color = 'var(--color-white)';
+
+                        // 保存投票选择
+                        gameData.rounds[gameData.currentRound].votes[player.name] = choice;
+                    });
+
+                    buttonsDiv.appendChild(btn);
+                });
+
+                playerVote.appendChild(nameDiv);
+                playerVote.appendChild(buttonsDiv);
+                container.appendChild(playerVote);
+            });
+        }
+
+        // ==================== 结算逻辑 ====================
+        function calculateRound() {
+            const roundData = gameData.rounds[gameData.currentRound];
+            const base = parseInt(elements.baseThreshold.value);
+            const m1 = parseInt(elements.minister1Adjust.value);
+            const m2 = parseInt(elements.minister2Adjust.value);
+            const effective = base + m1 + m2;
+            const childSpecial = elements.childSpecial.checked;
+
+            // 统计投票结果
+            const votes = roundData.votes;
+            let challengeCount = 0;
+            let supportCount = 0;
+            let silenceCount = 0;
+            let challengePlayers = [];
+            let supportPlayers = [];
+
+            Object.keys(votes).forEach(playerName => {
+                const choice = votes[playerName];
+                if (choice === '质疑') {
+                    challengeCount++;
+                    challengePlayers.push(playerName);
+                } else if (choice === '附和') {
+                    supportCount++;
+                    supportPlayers.push(playerName);
+                } else if (choice === '沉默') {
+                    silenceCount++;
+                }
+            });
+
+            const success = challengeCount >= effective;
+            const results = calculateScores(success, childSpecial, challengePlayers, supportPlayers);
+
+            // 显示结果
+            displayResults(effective, challengeCount, success, results, challengeCount, supportCount, silenceCount);
+
+            // 更新玩家分数
+            Object.keys(results).forEach(playerName => {
+                const player = gameData.players.find(p => p.name === playerName);
+                if (player) {
+                    player.score += results[playerName];
+                }
+            });
+
+            // 标记孩子特殊质疑已使用
+            if (childSpecial) {
+                gameData.childSpecialUsed = true;
+            }
+
+            // 更新排名
+            updateRanking();
+        }
+
+        // ==================== 计分规则实现 ====================
+        function calculateScores(success, childSpecial, challengePlayers, supportPlayers) {
+            const results = {};
+            gameData.players.forEach(p => results[p.name] = 0);
+
+            if (success) {
+                // 质疑成功
+                // 得分：质疑玩家 + （选择附和+沉默的人数）
+                const scoreValue = supportPlayers.length + (Object.keys(gameData.rounds[gameData.currentRound].votes).length - challengePlayers.length - supportPlayers.length);
+
+                // 质疑玩家得分
+                challengePlayers.forEach(name => {
+                    results[name] += scoreValue;
+                });
+
+                // 孩子特殊质疑额外加成
+                if (childSpecial && challengePlayers.includes('孩子')) {
+                    results['孩子'] += 3;
+                }
+
+                // 扣分：裁缝 + 附和玩家
+                const deductValue = challengePlayers.length;
+                results['裁缝1'] -= deductValue;
+                results['裁缝2'] -= deductValue;
+
+                supportPlayers.forEach(name => {
+                    results[name] -= deductValue;
+                    // 特殊质疑额外扣分
+                    if (childSpecial) {
+                        results[name] -= 3;
+                    }
+                });
+            } else {
+                // 质疑失败
+                // 得分：裁缝 + 附和玩家 = （质疑+沉默的人数）
+                const scoreValue = challengePlayers.length + (Object.keys(gameData.rounds[gameData.currentRound].votes).length - challengePlayers.length - supportPlayers.length);
+
+                results['裁缝1'] += scoreValue;
+                results['裁缝2'] += scoreValue;
+
+                supportPlayers.forEach(name => {
+                    results[name] += scoreValue;
+                });
+
+                // 扣分：质疑玩家 = 附和的人数
+                const deductValue = supportPlayers.length;
+                challengePlayers.forEach(name => {
+                    if (name !== '孩子' || !childSpecial) {
+                        results[name] -= deductValue;
+                    }
+                    // 孩子使用特殊质疑失败不扣分
+                });
+            }
+
+            return results;
+        }
+
+        // ==================== 显示结果 ====================
+        function displayResults(threshold, votes, success, results, challengeCount, supportCount, silenceCount) {
+            const resultSection = document.getElementById('resultSection');
+            document.getElementById('resultStatus').textContent = success ? '✅ 质疑成功!' : '❌ 质疑失败!';
+            document.getElementById('resultThreshold').textContent = threshold;
+            document.getElementById('resultVotes').textContent = votes;
+
+            // 显示得分者
+            const winners = Object.keys(results).filter(name => results[name] > 0);
+            document.getElementById('resultWinners').innerHTML = winners.length > 0
+                ? winners.map(name => `<div class="result-list__item">${name} +${results[name]}分</div>`).join('')
+                : '<div class="result-list__item">无</div>';
+
+            // 显示扣分者
+            const losers = Object.keys(results).filter(name => results[name] < 0);
+            document.getElementById('resultLosers').innerHTML = losers.length > 0
+                ? losers.map(name => `<div class="result-list__item">${name} ${results[name]}分</div>`).join('')
+                : '<div class="result-list__item">无</div>';
+
+            resultSection.classList.add('visible');
+        }
+
+        // ==================== 排名更新 ====================
+        function updateRanking() {
+            const sorted = [...gameData.players].sort((a, b) => b.score - a.score);
+            const rankingList = document.getElementById('rankingList');
+            rankingList.innerHTML = '';
+
+            const medals = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣'];
+
+            sorted.forEach((player, index) => {
+                const item = document.createElement('div');
+                item.className = 'ranking-item';
+                item.innerHTML = `
+                    <div class="ranking-item__rank">${medals[index]}</div>
+                    <div class="ranking-item__info">
+                        <div class="ranking-item__name">${player.name}</div>
+                        <div class="ranking-item__role">${player.role}</div>
+                    </div>
+                    <div class="ranking-item__score">${player.score}</div>
+                `;
+                rankingList.appendChild(item);
+            });
+        }
+
+        // ==================== 事件监听 ====================
+        // 轮数按钮点击
+        elements.roundBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                selectRound.call(btn);
+                renderVotingInterface();
+                document.getElementById('resultSection').classList.remove('visible');
+            });
+        });
+
+        // 表单输入实时更新
+        elements.baseThreshold.addEventListener('change', updateEffectiveThreshold);
+        elements.minister1Adjust.addEventListener('change', updateEffectiveThreshold);
+        elements.minister2Adjust.addEventListener('change', updateEffectiveThreshold);
+
+        // 孩子特殊质疑变化时重新渲染投票界面
+        elements.childSpecial.addEventListener('change', renderVotingInterface);
+
+        // 按钮点击
+        elements.resetBtn.addEventListener('click', () => {
+            resetForm();
+            document.getElementById('votingPlayers').innerHTML = '';
+            document.getElementById('resultSection').classList.remove('visible');
+        });
+
+        elements.calculateBtn.addEventListener('click', calculateRound);
+
+        // ==================== 游戏结束检查 ====================
+        function isGameComplete() {
+            // 检查所有5轮是否都已有投票记录
+            for (let round = 1; round <= 5; round++) {
+                const roundData = gameData.rounds[round];
+                if (Object.keys(roundData.votes).length === 0) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function showGameOverScreen() {
+            const gameOverScreen = document.getElementById('gameOverScreen');
+            const sorted = [...gameData.players].sort((a, b) => b.score - a.score);
+            const finalRankingList = document.getElementById('finalRankingList');
+            finalRankingList.innerHTML = '';
+
+            const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣'];
+
+            sorted.forEach((player, index) => {
+                const item = document.createElement('div');
+                item.className = 'final-ranking__item';
+                if (index === 0) {
+                    item.classList.add('first');
+                }
+
+                item.innerHTML = `
+                    <div class="final-ranking__rank">${medals[index]}</div>
+                    <div class="final-ranking__name">${player.name}<br><span style="font-size: var(--font-size-small); color: var(--color-text-light);">${player.role}</span></div>
+                    <div class="final-ranking__score">${player.score}</div>
+                `;
+
+                finalRankingList.appendChild(item);
+            });
+
+            gameOverScreen.classList.add('visible');
+        }
+
+        function resetGame() {
+            // 重置所有数据
+            gameData.currentRound = 1;
+            gameData.childSpecialUsed = false;
+            gameData.players.forEach(p => p.score = 0);
+            gameData.rounds = {
+                1: { base: 3, m1: 0, m2: 0, childSpecial: false, votes: {} },
+                2: { base: 3, m1: 0, m2: 0, childSpecial: false, votes: {} },
+                3: { base: 3, m1: 0, m2: 0, childSpecial: false, votes: {} },
+                4: { base: 3, m1: 0, m2: 0, childSpecial: false, votes: {} },
+                5: { base: 3, m1: 0, m2: 0, childSpecial: false, votes: {} }
+            };
+
+            // 关闭游戏结束屏幕
+            document.getElementById('gameOverScreen').classList.remove('visible');
+
+            // 重置UI到第1轮
+            elements.currentRoundDisplay.textContent = 1;
+            elements.resultRoundDisplay.textContent = 1;
+            elements.roundBtns.forEach((btn, idx) => {
+                btn.classList.toggle('active', idx === 0);
+            });
+
+            // 重置表单
+            resetForm();
+            updateRanking();
+            document.getElementById('resultSection').classList.remove('visible');
+            renderVotingInterface();
+        }
+
+        function shareResult() {
+            const sorted = [...gameData.players].sort((a, b) => b.score - a.score);
+            const winner = sorted[0];
+            const resultText = `🏆 皇帝的新装 - 游戏结束\n\n👑 冠军：${winner.name}（${winner.role}）\n总分：${winner.score}\n\n排名：\n${sorted.map((p, idx) => `${idx + 1}. ${p.name}（${p.role}）- ${p.score}分`).join('\n')}`;
+
+            if (navigator.share) {
+                navigator.share({
+                    title: '皇帝的新装 - 游戏结果',
+                    text: resultText
+                }).catch(err => console.log('分享失败:', err));
+            } else {
+                // 如果不支持Web Share API，复制到剪贴板
+                navigator.clipboard.writeText(resultText).then(() => {
+                    alert('结果已复制到剪贴板！');
+                });
+            }
+        }
+
+        // ==================== 初始化 ====================
+        console.log('✅ 步骤4: 游戏结束检查和多轮支持已就绪');
+
+        // 检查游戏完成状态
+        setInterval(() => {
+            if (isGameComplete()) {
+                showGameOverScreen();
+                clearInterval(this);
+            }
+        }, 500);
+
+        // 游戏结束屏幕按钮
+        document.getElementById('backToRound1Btn').addEventListener('click', resetGame);
+        document.getElementById('shareResultBtn').addEventListener('click', shareResult);
+
+        updateEffectiveThreshold();
+        renderVotingInterface();
+    </script>
+</body>
+</html>

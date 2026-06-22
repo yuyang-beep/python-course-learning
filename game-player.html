@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>皇帝的新装 - 游戏</title>
+    <style>
+        :root {
+            --color-gold: #D4AF37;
+            --color-white: #FFFFFF;
+            --color-bg-light: #F5F5F5;
+            --color-text-dark: #333333;
+            --color-text-light: #999999;
+            --color-border: #D4AF37;
+            --color-success: #4CAF50;
+            --color-error: #F44336;
+            --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            --font-size-h1: 32px;
+            --font-size-h2: 20px;
+            --font-size-h3: 16px;
+            --font-size-body: 16px;
+            --font-size-small: 14px;
+            --spacing-xs: 8px;
+            --spacing-sm: 12px;
+            --spacing-md: 15px;
+            --spacing-lg: 20px;
+            --spacing-xl: 30px;
+            --spacing-xxl: 40px;
+            --border-radius: 8px;
+            --shadow-gold: 0 2px 8px rgba(212, 175, 55, 0.2);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font-family);
+            background-color: var(--color-white);
+            color: var(--color-text-dark);
+            font-size: var(--font-size-body);
+        }
+
+        .container { max-width: 800px; margin: 0 auto; padding: var(--spacing-xxl); }
+        .header {
+            text-align: center;
+            margin-bottom: var(--spacing-xxl);
+            padding-bottom: var(--spacing-xl);
+            border-bottom: 1px solid var(--color-bg-light);
+        }
+
+        .header__title { font-size: var(--font-size-h1); font-weight: 700; margin-bottom: var(--spacing-md); }
+        .header__crown { font-size: 36px; margin-right: var(--spacing-sm); }
+        .header__subtitle { font-size: var(--font-size-small); color: var(--color-text-light); }
+
+        .card {
+            background-color: var(--color-white);
+            border: 1px solid var(--color-border);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-xl);
+            box-shadow: var(--shadow-gold);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .card__title {
+            font-size: var(--font-size-h2);
+            font-weight: 600;
+            color: var(--color-gold);
+            margin-bottom: var(--spacing-xl);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 1px solid var(--color-bg-light);
+        }
+
+        .form-group { margin-bottom: var(--spacing-lg); }
+        .form-group__label {
+            display: block;
+            font-size: var(--font-size-small);
+            color: var(--color-text-dark);
+            margin-bottom: var(--spacing-sm);
+            font-weight: 600;
+        }
+
+        .form-group__input {
+            width: 100%;
+            padding: var(--spacing-md);
+            border: 1px solid var(--color-border);
+            border-radius: var(--border-radius);
+            font-size: var(--font-size-body);
+            font-family: var(--font-family);
+            color: var(--color-text-dark);
+            background-color: var(--color-white);
+        }
+
+        .btn {
+            width: 100%;
+            padding: var(--spacing-lg);
+            background-color: var(--color-gold);
+            color: var(--color-white);
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: var(--font-size-body);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: var(--spacing-md);
+        }
+
+        .btn:hover:not(:disabled) { background-color: #c9a227; }
+        .btn:disabled { background-color: var(--color-text-light); cursor: not-allowed; opacity: 0.6; }
+        .btn--secondary { background-color: var(--color-text-light); }
+        .btn--secondary:hover { background-color: #777777; }
+
+        .info-box {
+            background-color: var(--color-bg-light);
+            padding: var(--spacing-lg);
+            border-radius: var(--border-radius);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .info-item:last-child { margin-bottom: 0; }
+        .info-label { color: var(--color-text-light); font-size: var(--font-size-small); }
+        .info-value { font-weight: 600; color: var(--color-text-dark); }
+
+        .waiting-spinner {
+            font-size: 48px;
+            animation: spin 2s linear infinite;
+            margin-bottom: var(--spacing-lg);
+            text-align: center;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .voting-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-lg);
+            margin: var(--spacing-xl) 0;
+        }
+
+        .vote-btn {
+            padding: var(--spacing-xl);
+            border: 2px solid var(--color-border);
+            background-color: var(--color-white);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            font-family: var(--font-family);
+        }
+
+        .vote-btn:hover { border-color: var(--color-gold); background-color: var(--color-bg-light); }
+        .vote-btn.selected {
+            background-color: var(--color-gold);
+            color: var(--color-white);
+            border-color: var(--color-gold);
+        }
+
+        .vote-btn__emoji { font-size: 32px; display: block; margin-bottom: var(--spacing-sm); }
+        .vote-btn__text { font-weight: 600; }
+
+        .result-box {
+            background-color: var(--color-bg-light);
+            padding: var(--spacing-xl);
+            border-radius: var(--border-radius);
+            text-align: center;
+            margin: var(--spacing-lg) 0;
+        }
+
+        .result-box__label { font-size: var(--font-size-small); color: var(--color-text-light); margin-bottom: var(--spacing-sm); }
+        .result-box__value {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--color-gold);
+        }
+
+        .result-box__value.positive { color: var(--color-success); }
+        .result-box__value.negative { color: var(--color-error); }
+
+        .hidden { display: none; }
+        .section { display: none; }
+        .section.active { display: block; }
+
+        @media (max-width: 600px) {
+            .container { padding: var(--spacing-lg); }
+            .header__title { font-size: 24px; }
+            .voting-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="header__title"><span class="header__crown">👑</span>皇帝的新装</h1>
+            <p class="header__subtitle">游戏客户端</p>
+        </div>
+
+        <!-- 加入房间 -->
+        <section id="joinSection" class="section active">
+            <div class="card">
+                <h2 class="card__title">🎮 加入游戏</h2>
+                <div class="form-group">
+                    <label class="form-group__label">房间代码</label>
+                    <input type="text" id="roomCodeInput" class="form-group__input" placeholder="输入房间代码" maxlength="6">
+                </div>
+                <div class="form-group">
+                    <label class="form-group__label">玩家名称</label>
+                    <input type="text" id="playerNameInput" class="form-group__input" placeholder="输入你的名字" maxlength="12">
+                </div>
+                <button class="btn" id="joinBtn">加入房间</button>
+            </div>
+        </section>
+
+        <!-- 等待身份分配 -->
+        <section id="waitingAssignmentSection" class="section">
+            <div class="card">
+                <h2 class="card__title">⏳ 等待身份分配</h2>
+                <div class="waiting-spinner">⏳</div>
+                <div class="info-box">
+                    <div class="info-item">
+                        <span class="info-label">你的名字</span>
+                        <span class="info-value" id="displayName">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">房间代码</span>
+                        <span class="info-value" id="displayRoom">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">身份</span>
+                        <span class="info-value" id="displayRoleWaiting">未分配</span>
+                    </div>
+                </div>
+                <p style="text-align: center; color: var(--color-text-light); margin-bottom: var(--spacing-lg);">管理者正在分配身份...</p>
+                <button class="btn btn--secondary" id="exitWaitingBtn">退出房间</button>
+            </div>
+        </section>
+
+        <!-- 等待游戏开始 -->
+        <section id="readySection" class="section">
+            <div class="card">
+                <h2 class="card__title">📋 准备就绪</h2>
+                <div class="info-box">
+                    <div class="info-item">
+                        <span class="info-label">玩家名</span>
+                        <span class="info-value" id="displayName2">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">你的身份</span>
+                        <span class="info-value" id="displayRole">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">累计分数</span>
+                        <span class="info-value" id="displayScore">0</span>
+                    </div>
+                </div>
+                <p style="text-align: center; color: var(--color-text-light); margin-bottom: var(--spacing-lg);">等待管理者开始游戏...</p>
+                <button class="btn btn--secondary" id="exitReadyBtn">退出房间</button>
+            </div>
+        </section>
+
+        <!-- 投票 -->
+        <section id="votingSection" class="section">
+            <div class="card">
+                <h2 class="card__title">🗳️ 第 <span id="roundNum">1</span> 轮投票</h2>
+                <div class="info-box">
+                    <div class="info-item">
+                        <span class="info-label">身份</span>
+                        <span class="info-value" id="votingRole">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">累计分数</span>
+                        <span class="info-value" id="votingScore">0</span>
+                    </div>
+                </div>
+
+                <p style="text-align: center; margin: var(--spacing-lg) 0; color: var(--color-text-light);">请选择你的投票</p>
+
+                <div class="voting-grid">
+                    <button class="vote-btn" data-vote="质疑">
+                        <span class="vote-btn__emoji">💎</span>
+                        <span class="vote-btn__text">质疑</span>
+                    </button>
+                    <button class="vote-btn" data-vote="附和">
+                        <span class="vote-btn__emoji">✋</span>
+                        <span class="vote-btn__text">附和</span>
+                    </button>
+                    <button class="vote-btn" data-vote="沉默">
+                        <span class="vote-btn__emoji">🤐</span>
+                        <span class="vote-btn__text">沉默</span>
+                    </button>
+                </div>
+
+                <button class="btn" id="submitVoteBtn" disabled>提交投票</button>
+            </div>
+        </section>
+
+        <!-- 等待结果 -->
+        <section id="waitingResultSection" class="section">
+            <div class="card">
+                <h2 class="card__title">⏳ 等待结果公布</h2>
+                <div class="waiting-spinner">🎲</div>
+                <div class="info-box">
+                    <div class="info-item">
+                        <span class="info-label">你的投票</span>
+                        <span class="info-value" id="yourVote">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">累计分数</span>
+                        <span class="info-value" id="waitScore">0</span>
+                    </div>
+                </div>
+                <p style="text-align: center; color: var(--color-text-light);">等待管理者公布结果...</p>
+            </div>
+        </section>
+
+        <!-- 显示结果 -->
+        <section id="resultSection" class="section">
+            <div class="card">
+                <h2 class="card__title">📊 第 <span id="resultRound">1</span> 轮结果</h2>
+
+                <div class="info-box">
+                    <div class="info-item">
+                        <span class="info-label">你的投票</span>
+                        <span class="info-value" id="resultVote">-</span>
+                    </div>
+                </div>
+
+                <div class="result-box">
+                    <div class="result-box__label">本轮得分变化</div>
+                    <div class="result-box__value" id="roundScoreDisplay">0</div>
+                </div>
+
+                <div class="result-box">
+                    <div class="result-box__label">累计分数</div>
+                    <div class="result-box__value" id="totalScoreDisplay">0</div>
+                </div>
+
+                <button class="btn" id="nextRoundBtn">进入下一轮</button>
+            </div>
+        </section>
+
+        <!-- 游戏结束 -->
+        <section id="gameOverSection" class="section">
+            <div class="card">
+                <h2 class="card__title">🏆 游戏结束</h2>
+                <div style="text-align: center; margin: var(--spacing-xl) 0;">
+                    <div style="font-size: 48px; margin-bottom: var(--spacing-lg);">🎊</div>
+                    <div style="font-size: var(--font-size-h2); color: var(--color-gold); font-weight: 700; margin-bottom: var(--spacing-lg);" id="finalMessage">感谢参与！</div>
+                </div>
+
+                <div class="result-box">
+                    <div class="result-box__label">最终分数</div>
+                    <div class="result-box__value" id="finalScore">0</div>
+                </div>
+
+                <button class="btn btn--secondary" id="returnBtn">返回加入</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        let db = null;
+        try {
+            if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.database();
+            }
+        } catch (e) {
+            console.error('Firebase 初始化失败', e);
+        }
+
+        const roleEmojis = { '裁缝': '👔', '大臣': '🧑‍⚖️', '百姓': '👨', '孩子': '🧒' };
+
+        let playerData = {
+            playerId: null,
+            playerName: null,
+            playerRole: null,
+            roomCode: null,
+            totalScore: 0,
+            currentRound: 1,
+            currentVote: null
+        };
+
+        const showSection = (id) => {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        };
+
+        // ==================== 加入房间 ====================
+        document.getElementById('joinBtn').addEventListener('click', () => {
+            if (!db) { alert('Firebase 未配置'); return; }
+
+            const roomCode = document.getElementById('roomCodeInput').value.trim().toUpperCase();
+            const playerName = document.getElementById('playerNameInput').value.trim();
+
+            if (!roomCode || !playerName) {
+                alert('请填写房间代码和名字');
+                return;
+            }
+
+            playerData.playerId = 'p_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            playerData.playerName = playerName;
+            playerData.roomCode = roomCode;
+
+            db.ref('rooms/' + roomCode).get().then(snap => {
+                if (!snap.exists()) {
+                    alert('房间不存在');
+                    return;
+                }
+
+                db.ref('rooms/' + roomCode + '/players/' + playerData.playerId).set({
+                    name: playerName,
+                    totalScore: 0,
+                    joinedAt: Date.now()
+                }).then(() => {
+                    document.getElementById('displayName').textContent = playerName;
+                    document.getElementById('displayRoom').textContent = roomCode;
+                    showSection('waitingAssignmentSection');
+                    setupListeners();
+                });
+            });
+        });
+
+        // ==================== 监听身份分配 ====================
+        function setupListeners() {
+            const code = playerData.roomCode;
+            if (!db) return;
+
+            // 监听身份分配
+            db.ref('rooms/' + code + '/assignments/' + playerData.playerId).on('value', snap => {
+                const role = snap.val();
+                if (role) {
+                    playerData.playerRole = role;
+                    document.getElementById('displayRoleWaiting').textContent = roleEmojis[role] + ' ' + role;
+                    document.getElementById('displayRole').textContent = roleEmojis[role] + ' ' + role;
+                }
+            });
+
+            // 监听游戏状态
+            db.ref('rooms/' + code + '/status').on('value', snap => {
+                const status = snap.val();
+                if (status === 'playing' && playerData.playerRole) {
+                    showSection('readySection');
+                    document.getElementById('displayName2').textContent = playerData.playerName;
+                    monitorGameStart();
+                }
+            });
+
+            // 监听当前轮数
+            db.ref('rooms/' + code + '/currentRound').on('value', snap => {
+                playerData.currentRound = snap.val() || 1;
+                document.getElementById('roundNum').textContent = playerData.currentRound;
+                document.getElementById('resultRound').textContent = playerData.currentRound;
+            });
+
+            // 监听玩家分数
+            db.ref('rooms/' + code + '/players/' + playerData.playerId + '/totalScore').on('value', snap => {
+                playerData.totalScore = snap.val() || 0;
+                document.getElementById('displayScore').textContent = playerData.totalScore;
+                document.getElementById('votingScore').textContent = playerData.totalScore;
+                document.getElementById('waitScore').textContent = playerData.totalScore;
+                document.getElementById('totalScoreDisplay').textContent = playerData.totalScore;
+            });
+        }
+
+        function monitorGameStart() {
+            if (!db || !playerData.roomCode) return;
+            db.ref('rooms/' + playerData.roomCode + '/status').on('value', snap => {
+                const status = snap.val();
+                if (status === 'round_active') {
+                    document.getElementById('votingRole').textContent = roleEmojis[playerData.playerRole] + ' ' + playerData.playerRole;
+                    showSection('votingSection');
+                    resetVoting();
+                }
+            });
+        }
+
+        // ==================== 投票 ====================
+        document.querySelectorAll('.vote-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.vote-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                playerData.currentVote = btn.dataset.vote;
+                document.getElementById('submitVoteBtn').disabled = false;
+            });
+        });
+
+        document.getElementById('submitVoteBtn').addEventListener('click', () => {
+            if (!playerData.currentVote || !db) return;
+
+            db.ref('rooms/' + playerData.roomCode + '/rounds/' + playerData.currentRound + '/votes/' + playerData.playerId).set(playerData.currentVote).then(() => {
+                document.getElementById('yourVote').textContent = playerData.currentVote;
+                showSection('waitingResultSection');
+                monitorResults();
+            });
+        });
+
+        function resetVoting() {
+            playerData.currentVote = null;
+            document.querySelectorAll('.vote-btn').forEach(b => b.classList.remove('selected'));
+            document.getElementById('submitVoteBtn').disabled = true;
+        }
+
+        function monitorResults() {
+            if (!db || !playerData.roomCode) return;
+            db.ref('rooms/' + playerData.roomCode + '/rounds/' + playerData.currentRound + '/results/' + playerData.playerId).on('value', snap => {
+                const result = snap.val();
+                if (result && result.score !== undefined) {
+                    showResults(result);
+                }
+            });
+        }
+
+        function showResults(result) {
+            const scoreDisplay = document.getElementById('roundScoreDisplay');
+            scoreDisplay.textContent = (result.score > 0 ? '+' : '') + result.score;
+            scoreDisplay.className = 'result-box__value';
+            if (result.score > 0) {
+                scoreDisplay.classList.add('positive');
+            } else if (result.score < 0) {
+                scoreDisplay.classList.add('negative');
+            }
+
+            document.getElementById('resultVote').textContent = playerData.currentVote;
+            showSection('resultSection');
+        }
+
+        document.getElementById('nextRoundBtn').addEventListener('click', () => {
+            if (playerData.currentRound >= 5) {
+                document.getElementById('finalScore').textContent = playerData.totalScore;
+                document.getElementById('finalMessage').textContent = `最终成绩：${playerData.totalScore}分`;
+                showSection('gameOverSection');
+            } else {
+                showSection('readySection');
+                resetVoting();
+            }
+        });
+
+        // ==================== 退出 ====================
+        const exitButtons = ['exitWaitingBtn', 'exitReadyBtn'];
+        exitButtons.forEach(btnId => {
+            document.getElementById(btnId).addEventListener('click', resetGame);
+        });
+
+        document.getElementById('returnBtn').addEventListener('click', resetGame);
+
+        function resetGame() {
+            if (db && playerData.roomCode) {
+                db.ref('rooms/' + playerData.roomCode + '/players/' + playerData.playerId).remove();
+            }
+            playerData = {
+                playerId: null,
+                playerName: null,
+                playerRole: null,
+                roomCode: null,
+                totalScore: 0,
+                currentRound: 1,
+                currentVote: null
+            };
+            document.getElementById('roomCodeInput').value = '';
+            document.getElementById('playerNameInput').value = '';
+            showSection('joinSection');
+        }
+
+        console.log('✅ 玩家端已就绪');
+    </script>
+</body>
+</html>

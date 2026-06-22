@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>皇帝的新装 - 管理者端（服务器版）</title>
+    <style>
+        :root {
+            --color-gold: #D4AF37;
+            --color-white: #FFFFFF;
+            --color-bg-light: #F5F5F5;
+            --color-text-dark: #333333;
+            --color-text-light: #999999;
+            --color-border: #D4AF37;
+            --color-success: #4CAF50;
+            --color-error: #F44336;
+            --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            --font-size-h1: 32px;
+            --font-size-h2: 20px;
+            --font-size-h3: 16px;
+            --font-size-body: 16px;
+            --font-size-small: 14px;
+            --spacing-xs: 8px;
+            --spacing-sm: 12px;
+            --spacing-md: 15px;
+            --spacing-lg: 20px;
+            --spacing-xl: 30px;
+            --spacing-xxl: 40px;
+            --border-radius: 8px;
+            --shadow-gold: 0 2px 8px rgba(212, 175, 55, 0.2);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: var(--font-family); background-color: var(--color-white); color: var(--color-text-dark); font-size: var(--font-size-body); }
+        .container { max-width: 1400px; margin: 0 auto; padding: var(--spacing-xxl); }
+        .header { text-align: center; margin-bottom: var(--spacing-xxl); padding-bottom: var(--spacing-xl); border-bottom: 1px solid var(--color-bg-light); }
+        .header__title { font-size: var(--font-size-h1); font-weight: 700; margin-bottom: var(--spacing-md); }
+        .header__crown { font-size: 36px; margin-right: var(--spacing-sm); }
+        .header__subtitle { font-size: var(--font-size-small); color: var(--color-text-light); }
+
+        .card { background-color: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--border-radius); padding: var(--spacing-xl); box-shadow: var(--shadow-gold); margin-bottom: var(--spacing-xl); }
+        .card__title { font-size: var(--font-size-h2); font-weight: 600; color: var(--color-gold); margin-bottom: var(--spacing-xl); padding-bottom: var(--spacing-md); border-bottom: 1px solid var(--color-bg-light); }
+
+        .form-group { margin-bottom: var(--spacing-lg); }
+        .form-group__label { display: block; font-size: var(--font-size-small); color: var(--color-text-dark); margin-bottom: var(--spacing-sm); font-weight: 600; }
+        .form-group__input { width: 100%; padding: var(--spacing-md); border: 1px solid var(--color-border); border-radius: var(--border-radius); font-size: var(--font-size-body); font-family: var(--font-family); color: var(--color-text-dark); background-color: var(--color-white); }
+
+        .btn { padding: var(--spacing-lg); background-color: var(--color-gold); color: var(--color-white); border: none; border-radius: var(--border-radius); font-size: var(--font-size-body); font-weight: 600; cursor: pointer; transition: all 0.2s ease; margin-top: var(--spacing-md); }
+        .btn:hover { background-color: #c9a227; }
+        .btn:disabled { background-color: var(--color-text-light); cursor: not-allowed; opacity: 0.6; }
+        .btn--secondary { background-color: var(--color-text-light); }
+        .btn--secondary:hover { background-color: #777777; }
+        .btn--danger { background-color: var(--color-error); }
+        .btn--danger:hover { background-color: #d32f2f; }
+        .btn--success { background-color: var(--color-success); }
+        .btn--success:hover { background-color: #45a049; }
+
+        .btn-group { display: flex; gap: var(--spacing-lg); margin-top: var(--spacing-lg); }
+        .btn-group > * { flex: 1; margin-top: 0; }
+
+        .room-code { background-color: var(--color-bg-light); padding: var(--spacing-lg); border-radius: var(--border-radius); text-align: center; margin-bottom: var(--spacing-lg); }
+        .room-code__label { font-size: var(--font-size-small); color: var(--color-text-light); margin-bottom: var(--spacing-sm); }
+        .room-code__value { font-size: 32px; font-weight: 700; color: var(--color-gold); font-family: monospace; }
+
+        .players-list { margin-bottom: var(--spacing-lg); }
+        .players-list__title { font-size: var(--font-size-h3); color: var(--color-gold); margin-bottom: var(--spacing-lg); font-weight: 600; }
+
+        .player-item { display: grid; grid-template-columns: 1fr 150px; gap: var(--spacing-lg); align-items: center; padding: var(--spacing-lg); background-color: var(--color-bg-light); border-radius: var(--border-radius); margin-bottom: var(--spacing-sm); }
+        .player-item__name { font-weight: 600; }
+        .role-select { padding: var(--spacing-md); border: 1px solid var(--color-border); border-radius: var(--border-radius); font-family: var(--font-family); background-color: var(--color-white); cursor: pointer; }
+
+        .hidden { display: none; }
+        .section { display: none; }
+        .section.active { display: block; }
+
+        .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-xl); }
+
+        .status-badge { display: inline-block; padding: var(--spacing-xs) var(--spacing-md); border-radius: 12px; font-size: var(--font-size-small); font-weight: 600; background-color: #FFF3CD; color: #856404; }
+        .status-badge.active { background-color: #D4EDDA; color: #155724; }
+
+        .vote-stats { background-color: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--border-radius); padding: var(--spacing-lg); margin-top: var(--spacing-xl); }
+
+        .vote-stat-item { display: flex; justify-content: space-between; padding: var(--spacing-md); background-color: var(--color-bg-light); border-radius: var(--border-radius); margin-bottom: var(--spacing-sm); }
+        .vote-stat-item__count { font-weight: 700; color: var(--color-gold); }
+
+        .status-indicator { display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: #999; margin-right: 8px; }
+        .status-indicator.connected { background-color: #4CAF50; }
+
+        @media (max-width: 1024px) {
+            .game-grid { grid-template-columns: 1fr; }
+            .player-item { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="header__title"><span class="header__crown">👑</span>皇帝的新装 - 管理者端</h1>
+            <p class="header__subtitle">
+                服务器版（Socket.io）
+                <span style="margin-left: 20px;">
+                    <span class="status-indicator connected" id="statusIndicator"></span>
+                    <span id="connectionStatus">已连接</span>
+                </span>
+            </p>
+        </div>
+
+        <!-- 连接设置 -->
+        <section id="setupSection" class="section active">
+            <div class="card">
+                <h2 class="card__title">⚙️ 服务器连接</h2>
+                <div class="form-group">
+                    <label class="form-group__label">服务器地址</label>
+                    <input type="text" id="serverUrl" class="form-group__input" value="http://localhost:3000" placeholder="http://localhost:3000">
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn--success" id="createRoomBtn">创建新房间</button>
+                    <button class="btn btn--secondary" id="connectBtn">连接到服务器</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 身份分配 -->
+        <section id="assignmentSection" class="section">
+            <div class="card">
+                <h2 class="card__title">👥 身份分配</h2>
+                <div class="room-code">
+                    <div class="room-code__label">房间代码</div>
+                    <div class="room-code__value" id="displayRoomCode">-----</div>
+                </div>
+                <div class="players-list">
+                    <div class="players-list__title">已加入的玩家（<span id="playerCount">0</span>/8）</div>
+                    <div id="playersAssignmentList"></div>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn--success" id="startGameBtn">开始游戏</button>
+                    <button class="btn btn--danger" id="exitBtn">退出房间</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 游戏进行中 -->
+        <section id="gameSection" class="section">
+            <div class="game-grid">
+                <div class="card">
+                    <h2 class="card__title">📋 房间信息</h2>
+                    <div class="room-code">
+                        <div class="room-code__label">房间代码</div>
+                        <div class="room-code__value" id="displayRoomCode2">-----</div>
+                    </div>
+                    <div class="players-list">
+                        <div class="players-list__title">👥 玩家列表</div>
+                        <div id="gamePlayersList"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card__title">⚙️ 第 <span id="roundDisplay">1</span> 轮</h2>
+                    <div class="form-group">
+                        <label class="form-group__label">基础阈值</label>
+                        <input type="number" id="baseThreshold" class="form-group__input" value="3" min="0" max="8">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg);">
+                        <div class="form-group">
+                            <label class="form-group__label">大臣1 调整</label>
+                            <select id="minister1" class="form-group__input">
+                                <option value="-1">-1</option>
+                                <option value="0" selected>0</option>
+                                <option value="1">+1</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-group__label">大臣2 调整</label>
+                            <select id="minister2" class="form-group__input">
+                                <option value="-1">-1</option>
+                                <option value="0" selected>0</option>
+                                <option value="1">+1</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-group__label">
+                            <input type="checkbox" id="childSpecial"> 🧒 孩子本轮使用特殊质疑
+                        </label>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn--success" id="startRoundBtn">开启本轮</button>
+                        <button class="btn btn--secondary" id="endRoundBtn" disabled>结束本轮</button>
+                    </div>
+
+                    <div class="vote-stats" id="voteStats" style="display: none;">
+                        <div style="font-size: var(--font-size-h3); color: var(--color-gold); margin-bottom: var(--spacing-lg); font-weight: 600;">🗳️ 投票统计</div>
+                        <div id="voteStatsList"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="card__title">📊 本轮结果</h2>
+                <table style="width: 100%; border-collapse: collapse; font-size: var(--font-size-small);">
+                    <thead>
+                        <tr style="background-color: var(--color-gold); color: var(--color-white);">
+                            <th style="padding: var(--spacing-md); text-align: left;">玩家</th>
+                            <th style="padding: var(--spacing-md); text-align: left;">身份</th>
+                            <th style="padding: var(--spacing-md); text-align: left;">投票</th>
+                            <th style="padding: var(--spacing-md); text-align: right;">本轮</th>
+                            <th style="padding: var(--spacing-md); text-align: right;">累计</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultTable"></tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- Socket.io 库 -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+
+    <script>
+        const roles = ['裁缝', '裁缝', '大臣', '大臣', '百姓', '百姓', '百姓', '孩子'];
+        const roleEmojis = { '裁缝': '👔', '大臣': '🧑‍⚖️', '百姓': '👨', '孩子': '🧒' };
+
+        let socket = null;
+        let adminData = {
+            roomCode: null,
+            gameStarted: false,
+            currentRound: 1,
+            players: new Map(),
+            assignments: new Map()
+        };
+
+        const showSection = (id) => {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        };
+
+        const updateConnectionStatus = (connected) => {
+            const indicator = document.getElementById('statusIndicator');
+            const status = document.getElementById('connectionStatus');
+            if (connected) {
+                indicator.classList.add('connected');
+                status.textContent = '已连接';
+            } else {
+                indicator.classList.remove('connected');
+                status.textContent = '已断开';
+            }
+        };
+
+        // ==================== 连接 ====================
+        document.getElementById('connectBtn').addEventListener('click', () => {
+            const serverUrl = document.getElementById('serverUrl').value.trim();
+            if (!serverUrl) {
+                alert('请输入服务器地址');
+                return;
+            }
+
+            if (socket) {
+                socket.disconnect();
+            }
+
+            socket = io(serverUrl, {
+                reconnection: true,
+                reconnectionDelay: 1000,
+                reconnectionDelayMax: 5000,
+                reconnectionAttempts: 5
+            });
+
+            setupSocketListeners();
+        });
+
+        function setupSocketListeners() {
+            socket.on('connect', () => {
+                console.log('✅ 已连接到服务器');
+                updateConnectionStatus(true);
+                alert('已连接到服务器');
+            });
+
+            socket.on('disconnect', () => {
+                console.log('❌ 与服务器断开连接');
+                updateConnectionStatus(false);
+            });
+
+            socket.on('player_joined', (data) => {
+                updateAssignmentUI(data.players);
+            });
+
+            socket.on('role_assigned', (data) => {
+                adminData.assignments = new Map(Object.entries(data.assignments));
+                updateGameUI();
+            });
+
+            socket.on('game_started', () => {
+                showSection('gameSection');
+                updateGameUI();
+            });
+
+            socket.on('vote_stats_updated', (data) => {
+                updateVoteStats(data.stats);
+            });
+
+            socket.on('round_ended', (data) => {
+                displayRoundResults(data.results, data.players);
+            });
+
+            socket.on('error', (data) => {
+                console.error('服务器错误:', data.message);
+                alert('错误: ' + data.message);
+            });
+        }
+
+        // ==================== 房间操作 ====================
+        document.getElementById('createRoomBtn').addEventListener('click', () => {
+            if (!socket) {
+                alert('请先连接到服务器');
+                return;
+            }
+
+            socket.emit('create_room', (response) => {
+                adminData.roomCode = response.code;
+                document.getElementById('displayRoomCode').textContent = response.code;
+                document.getElementById('displayRoomCode2').textContent = response.code;
+                showSection('assignmentSection');
+                console.log('✅ 房间已创建:', response.code);
+            });
+        });
+
+        document.getElementById('startGameBtn').addEventListener('click', () => {
+            if (adminData.assignments.size !== adminData.players.size) {
+                alert('请为所有玩家分配身份');
+                return;
+            }
+
+            socket.emit('start_game', { roomCode: adminData.roomCode });
+        });
+
+        // ==================== 身份分配 ====================
+        function updateAssignmentUI(playersMap) {
+            adminData.players = new Map(Object.entries(playersMap || {}));
+            const list = document.getElementById('playersAssignmentList');
+            list.innerHTML = '';
+            document.getElementById('playerCount').textContent = adminData.players.size;
+
+            adminData.players.forEach((player, playerId) => {
+                const assigned = adminData.assignments.get(playerId);
+                const item = document.createElement('div');
+                item.className = 'player-item';
+                item.innerHTML = `
+                    <div>
+                        <div class="player-item__name">${player.name}</div>
+                    </div>
+                    <select class="role-select" onchange="assignRole('${playerId}', this.value)">
+                        <option value="">-- 选择身份 --</option>
+                        ${roles.map(r => `<option value="${r}" ${assigned === r ? 'selected' : ''}>${r}</option>`).join('')}
+                    </select>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function assignRole(playerId, role) {
+            if (!role) return;
+            socket.emit('assign_role', {
+                roomCode: adminData.roomCode,
+                playerId,
+                role
+            });
+        }
+
+        // ==================== 游戏进行 ====================
+        function updateGameUI() {
+            const list = document.getElementById('gamePlayersList');
+            list.innerHTML = '';
+
+            adminData.players.forEach((player, playerId) => {
+                const role = adminData.assignments.get(playerId) || '?';
+                const score = player.totalScore || 0;
+
+                const item = document.createElement('div');
+                item.className = 'player-item';
+                item.style.gridTemplateColumns = '1fr 100px';
+                item.innerHTML = `
+                    <div>
+                        <div class="player-item__name">${roleEmojis[role]} ${player.name}</div>
+                    </div>
+                    <div style="text-align: right; font-weight: 700; color: var(--color-gold);">${score}</div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        document.getElementById('startRoundBtn').addEventListener('click', () => {
+            const config = {
+                base: parseInt(document.getElementById('baseThreshold').value),
+                m1: parseInt(document.getElementById('minister1').value),
+                m2: parseInt(document.getElementById('minister2').value),
+                childSpecial: document.getElementById('childSpecial').checked
+            };
+
+            socket.emit('start_round', {
+                roomCode: adminData.roomCode,
+                round: adminData.currentRound,
+                config
+            });
+
+            document.getElementById('startRoundBtn').disabled = true;
+            document.getElementById('endRoundBtn').disabled = false;
+            document.getElementById('voteStats').style.display = 'block';
+        });
+
+        document.getElementById('endRoundBtn').addEventListener('click', () => {
+            socket.emit('end_round', {
+                roomCode: adminData.roomCode,
+                round: adminData.currentRound
+            });
+
+            adminData.currentRound++;
+            document.getElementById('roundDisplay').textContent = adminData.currentRound;
+            document.getElementById('startRoundBtn').disabled = false;
+            document.getElementById('endRoundBtn').disabled = true;
+            document.getElementById('voteStats').style.display = 'none';
+        });
+
+        function updateVoteStats(stats) {
+            const total = adminData.players.size;
+            const html = `
+                <div style="background-color: var(--color-bg-light); padding: var(--spacing-md); border-radius: var(--border-radius);">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: var(--spacing-sm);">
+                        <span>💎 质疑</span>
+                        <strong style="color: var(--color-gold);">${stats['质疑']}/${total}</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: var(--spacing-sm);">
+                        <span>✋ 附和</span>
+                        <strong style="color: var(--color-gold);">${stats['附和']}/${total}</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: var(--spacing-sm);">
+                        <span>🤐 沉默</span>
+                        <strong style="color: var(--color-gold);">${stats['沉默']}/${total}</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>⏳ 未投</span>
+                        <strong style="color: var(--color-gold);">${stats['未投']}/${total}</strong>
+                    </div>
+                </div>
+            `;
+            document.getElementById('voteStatsList').innerHTML = html;
+        }
+
+        function displayRoundResults(results, players) {
+            const tbody = document.getElementById('resultTable');
+            tbody.innerHTML = '';
+
+            players.forEach(player => {
+                const result = results[player.id];
+                if (!result) return;
+
+                const row = document.createElement('tr');
+                const scoreClass = result.score > 0 ? 'color: var(--color-success)' : result.score < 0 ? 'color: var(--color-error)' : '';
+                const scoreText = result.score > 0 ? `+${result.score}` : result.score;
+
+                row.innerHTML = `
+                    <td style="padding: var(--spacing-md);">${player.name}</td>
+                    <td style="padding: var(--spacing-md);">${player.role}</td>
+                    <td style="padding: var(--spacing-md);">${result.vote}</td>
+                    <td style="padding: var(--spacing-md); text-align: right; ${scoreClass}">${scoreText}</td>
+                    <td style="padding: var(--spacing-md); text-align: right; font-weight: 700; color: var(--color-gold);">${player.totalScore}</td>
+                `;
+
+                tbody.appendChild(row);
+            });
+        }
+
+        // ==================== 退出 ====================
+        document.getElementById('exitBtn').addEventListener('click', () => {
+            socket.emit('exit_room', {
+                roomCode: adminData.roomCode,
+                playerId: null
+            });
+            socket.emit('delete_room', { roomCode: adminData.roomCode });
+            adminData = {
+                roomCode: null,
+                gameStarted: false,
+                currentRound: 1,
+                players: new Map(),
+                assignments: new Map()
+            };
+            showSection('setupSection');
+        });
+
+        console.log('✅ 管理者端已就绪');
+    </script>
+</body>
+</html>
