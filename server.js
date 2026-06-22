@@ -30,27 +30,20 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // ==================== 根路由 ====================
 app.get('/', (req, res) => {
-    res.json({
-        message: '皇帝的新装 - 游戏服务器',
-        version: '1.0.0',
-        status: 'running',
-        endpoints: {
-            admin: '/admin',
-            player: '/player',
-            health: '/health',
-            room: '/api/room/:code',
-            player: '/api/player/:roomCode/:playerId'
-        },
-        socketio: 'WebSocket connection available'
-    });
+    res.sendFile(path.join(__dirname, 'game.html'));
 });
 
-// 管理者端页面
+// 游戏首页
+app.get('/game', (req, res) => {
+    res.sendFile(path.join(__dirname, 'game.html'));
+});
+
+// 管理者端页面（自动连接）
 app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, 'game-admin-server.html'));
 });
 
-// 玩家端页面
+// 玩家端页面（自动填充服务器地址）
 app.get('/player', (req, res) => {
     res.sendFile(path.join(__dirname, 'game-player-server.html'));
 });

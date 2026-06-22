@@ -262,6 +262,10 @@
             document.getElementById(id).classList.add('active');
         };
 
+        // ==================== 自动设置服务器地址 ====================
+        const autoServerUrl = window.location.origin;
+        document.getElementById('serverUrl').value = autoServerUrl;
+
         // ==================== 加入房间 ====================
         document.getElementById('joinBtn').addEventListener('click', () => {
             const serverUrl = document.getElementById('serverUrl').value.trim();
