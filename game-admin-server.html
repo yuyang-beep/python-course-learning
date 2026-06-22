@@ -320,15 +320,24 @@
         function setupSocketListeners() {
             socket.on('connect', () => {
                 console.log('✅ 已连接到服务器');
+                console.log('socket.connected:', socket.connected);
                 updateConnectionStatus(true);
-                // 显示身份分配section
-                showSection('assignmentSection');
+                // 显示创建房间section（不直接显示身份分配）
+                showSection('createRoomSection');
             });
 
             socket.on('disconnect', () => {
                 console.log('❌ 与服务器断开连接');
                 updateConnectionStatus(false);
-                showSection('setupSection');
+                showSection('createRoomSection');
+            });
+
+            socket.on('error', (err) => {
+                console.error('❌ Socket错误:', err);
+            });
+
+            socket.on('connect_error', (err) => {
+                console.error('❌ 连接错误:', err);
             });
 
             socket.on('player_joined', (data) => {
@@ -361,12 +370,19 @@
 
         // ==================== 房间操作 ====================
         document.getElementById('createRoomBtn').addEventListener('click', () => {
-            if (!socket) {
-                alert('请先连接到服务器');
+            console.log('创建房间按钮被点击');
+            console.log('socket状态:', socket ? '存在' : '不存在');
+            console.log('socket连接状态:', socket ? socket.connected : '未创建');
+
+            if (!socket || !socket.connected) {
+                console.error('❌ 未连接到服务器');
+                alert('正在连接到服务器，请稍候...');
                 return;
             }
 
+            console.log('✅ 开始创建房间...');
             socket.emit('create_room', (response) => {
+                console.log('✅ 房间创建响应:', response);
                 adminData.roomCode = response.code;
                 document.getElementById('displayRoomCode').textContent = response.code;
                 document.getElementById('displayRoomCode2').textContent = response.code;
