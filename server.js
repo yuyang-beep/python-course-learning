@@ -47,24 +47,12 @@ app.get('/', (req, res) => {
 
 // 管理者端页面
 app.get('/admin', (req, res) => {
-    const filePath = path.join(__dirname, 'game-admin-server.html');
-    fs.readFile(filePath, 'utf8', (err, data) => {
-        if (err) {
-            return res.status(404).json({ error: 'Admin page not found' });
-        }
-        res.type('text/html').send(data);
-    });
+    res.sendFile(path.join(__dirname, 'game-admin-server.html'));
 });
 
 // 玩家端页面
 app.get('/player', (req, res) => {
-    const filePath = path.join(__dirname, 'game-player-server.html');
-    fs.readFile(filePath, 'utf8', (err, data) => {
-        if (err) {
-            return res.status(404).json({ error: 'Player page not found' });
-        }
-        res.type('text/html').send(data);
-    });
+    res.sendFile(path.join(__dirname, 'game-player-server.html'));
 });
 
 // ==================== 数据存储 ====================
