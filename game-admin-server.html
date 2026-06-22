@@ -252,8 +252,14 @@
         const autoServerUrl = window.location.origin;
         document.getElementById('serverUrl').value = autoServerUrl;
 
-        // 隐藏服务器连接部分
-        document.querySelector('.card:first-of-type').style.display = 'none';
+        // 隐藏服务器连接部分（setupSection）
+        document.getElementById('setupSection').style.display = 'none';
+
+        // 显示指定section的函数
+        const showSection = (id) => {
+            document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        };
 
         // 自动连接函数
         function autoConnect() {
@@ -273,14 +279,16 @@
 
         // 页面加载完成后自动连接
         document.addEventListener('DOMContentLoaded', () => {
-            autoConnect();
+            setTimeout(autoConnect, 500);
         });
 
         // 如果DOM已加载，立即连接
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', autoConnect);
+            document.addEventListener('DOMContentLoaded', () => {
+                setTimeout(autoConnect, 500);
+            });
         } else {
-            autoConnect();
+            setTimeout(autoConnect, 500);
         }
 
         // 保留手动连接按钮的事件监听（以防万一）
@@ -312,12 +320,14 @@
             socket.on('connect', () => {
                 console.log('✅ 已连接到服务器');
                 updateConnectionStatus(true);
-                alert('已连接到服务器');
+                // 显示身份分配section
+                showSection('assignmentSection');
             });
 
             socket.on('disconnect', () => {
                 console.log('❌ 与服务器断开连接');
                 updateConnectionStatus(false);
+                showSection('setupSection');
             });
 
             socket.on('player_joined', (data) => {
