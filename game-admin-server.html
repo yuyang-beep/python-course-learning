@@ -369,36 +369,55 @@
         }
 
         // ==================== 房间操作 ====================
-        document.getElementById('createRoomBtn').addEventListener('click', () => {
-            console.log('创建房间按钮被点击');
-            console.log('socket状态:', socket ? '存在' : '不存在');
-            console.log('socket连接状态:', socket ? socket.connected : '未创建');
+        function setupButtonListeners() {
+            const createBtn = document.getElementById('createRoomBtn');
+            const startBtn = document.getElementById('startGameBtn');
 
-            if (!socket || !socket.connected) {
-                console.error('❌ 未连接到服务器');
-                alert('正在连接到服务器，请稍候...');
-                return;
+            if (createBtn) {
+                createBtn.addEventListener('click', () => {
+                    console.log('创建房间按钮被点击');
+                    console.log('socket状态:', socket ? '存在' : '不存在');
+                    console.log('socket连接状态:', socket ? socket.connected : '未创建');
+
+                    if (!socket || !socket.connected) {
+                        console.error('❌ 未连接到服务器');
+                        alert('正在连接到服务器，请稍候...');
+                        return;
+                    }
+
+                    console.log('✅ 开始创建房间...');
+                    socket.emit('create_room', (response) => {
+                        console.log('✅ 房间创建响应:', response);
+                        adminData.roomCode = response.code;
+                        document.getElementById('displayRoomCode').textContent = response.code;
+                        document.getElementById('displayRoomCode2').textContent = response.code;
+                        showSection('assignmentSection');
+                        console.log('✅ 房间已创建:', response.code);
+                    });
+                });
             }
 
-            console.log('✅ 开始创建房间...');
-            socket.emit('create_room', (response) => {
-                console.log('✅ 房间创建响应:', response);
-                adminData.roomCode = response.code;
-                document.getElementById('displayRoomCode').textContent = response.code;
-                document.getElementById('displayRoomCode2').textContent = response.code;
-                showSection('assignmentSection');
-                console.log('✅ 房间已创建:', response.code);
-            });
-        });
+            if (startBtn) {
+                startBtn.addEventListener('click', () => {
+                    if (adminData.assignments.size !== adminData.players.size) {
+                        alert('请为所有玩家分配身份');
+                        return;
+                    }
 
-        document.getElementById('startGameBtn').addEventListener('click', () => {
-            if (adminData.assignments.size !== adminData.players.size) {
-                alert('请为所有玩家分配身份');
-                return;
+                    socket.emit('start_game', { roomCode: adminData.roomCode });
+                });
             }
+        }
 
-            socket.emit('start_game', { roomCode: adminData.roomCode });
+        // 在DOM加载完成后绑定按钮事件
+        document.addEventListener('DOMContentLoaded', () => {
+            setupButtonListeners();
         });
+
+        // 如果DOM已加载，立即绑定
+        if (document.readyState !== 'loading') {
+            setupButtonListeners();
+        }
 
         // ==================== 身份分配 ====================
         function updateAssignmentUI(playersMap) {
