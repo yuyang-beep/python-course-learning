@@ -1,0 +1,29 @@
+{
+  "name": "emperor-game-backend",
+  "version": "1.0.0",
+  "description": "Backend for Emperor's New Clothes Game (HUMAN 3.0)",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.38.0",
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "uuid": "^9.0.0",
+    "ws": "^8.14.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.20",
+    "@types/node": "^20.5.0",
+    "@types/uuid": "^9.0.2",
+    "typescript": "^5.2.2",
+    "tsx": "^3.13.0",
+    "vitest": "^0.34.6"
+  }
+}
