@@ -30,6 +30,3 @@ build/
 __pycache__/
 *.pyc
 .Python
-
-# Day lessons (keep only game files)
-Day*/
